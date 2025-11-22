@@ -1,11 +1,16 @@
 import express, { Application } from 'express';
 import dotenv from 'dotenv';
+import cors from 'cors';
 
 dotenv.config();
 
 const app: Application = express();
 
 // Middleware
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:3000', // 프론트엔드 주소 (HTTPS 포함)
+  credentials: true, // 쿠키/인증 헤더 허용
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
