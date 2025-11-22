@@ -8,10 +8,10 @@ export class UserRepository {
     this.prisma = new PrismaClient();
   }
 
-  async updateUser(userId: number, data: { nickname?: string, profileImage?: string }): Promise<User> {
+  async updateUser(userId: number, data: { nickname?: string, profileImage?: string, bio?: string }): Promise<User> {
     try {
       // Validate input (at least one field must be present)
-      if (!data.nickname && !data.profileImage) {
+      if (!data.nickname && !data.profileImage && !data.bio) {
         throw new BadRequestError('No update data provided');
       }
 
@@ -24,6 +24,7 @@ export class UserRepository {
         data: {
           ...(data.nickname && { nickname: data.nickname }),
           ...(data.profileImage && { profileImage: data.profileImage }),
+          ...(data.bio && { bio: data.bio }),
         },
       });
     } catch (error) {

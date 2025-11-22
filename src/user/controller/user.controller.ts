@@ -29,7 +29,7 @@ export class UserController {
       }
 
       // Validate at least one field is provided
-      if (!updateData.nickname && !updateData.profile_image) {
+      if (!updateData.nickname && !updateData.profile_image && !updateData.bio) {
         throw new BadRequestError('No update data provided');
       }
 
@@ -53,6 +53,7 @@ export class UserController {
           nickname: updatedUser.nickname,
           email: updatedUser.email,
           money: updatedUser.money,
+          bio: updatedUser.bio,
           profile_image: (updatedUser as any).profileImage ?? null,
           created_at: updatedUser.createdAt,
           updated_at: updatedUser.updatedAt,
@@ -106,6 +107,8 @@ export class UserController {
           name: user.name,
           nickname: user.nickname,
           email: user.email,
+          profile_image: user.profileImage,
+          bio: user.bio,
           profile_image: (user as any).profileImage ?? null,
           created_at: user.createdAt,
           updated_at: user.updatedAt,
@@ -146,6 +149,8 @@ export class UserController {
           nickname: user.nickname,
           email: user.email,
           money: user.money,
+          profile_image: user.profileImage,
+          bio: user.bio,
           profile_image: (user as any).profileImage ?? null,
           created_at: user.createdAt,
           updated_at: user.updatedAt,
