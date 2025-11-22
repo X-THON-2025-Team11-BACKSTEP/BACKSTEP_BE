@@ -300,6 +300,7 @@ export class UserRepository {
       saleStatus: string | null;
       isFree: boolean | null;
       price: number | null;
+      image: string | null;
       user: {
         name: string | null;
       };
@@ -334,6 +335,7 @@ export class UserRepository {
                   name: true,
                 },
               },
+              image: true,
               categories: {
                 select: {
                   category: {
@@ -343,7 +345,7 @@ export class UserRepository {
                   },
                 },
               },
-            },
+            } as any,
           },
         },
         orderBy: {
@@ -351,12 +353,76 @@ export class UserRepository {
         },
       });
 
-      return helpfulProjects;
+      return helpfulProjects as any;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         return [];
       }
       console.error('Error finding helpful projects by user id:', error);
+      return [];
+    }
+  }
+
+  async findProjectsByUserId(userId: number): Promise<Array<{
+    projectId: number;
+    name: string | null;
+    period: string | null;
+    saleStatus: string | null;
+    isFree: boolean | null;
+    price: number | null;
+    image: string | null;
+    user: {
+      name: string | null;
+    };
+    categories: Array<{
+      category: {
+        name: string | null;
+      };
+    }>;
+  }>> {
+    try {
+      if (!Number.isInteger(userId) || userId <= 0) {
+        return [];
+      }
+
+      const projects = await this.prisma.project.findMany({
+        where: {
+          userId,
+        },
+        select: {
+          projectId: true,
+          name: true,
+          period: true,
+          saleStatus: true,
+          isFree: true,
+          price: true,
+          image: true,
+          user: {
+            select: {
+              name: true,
+            },
+          },
+          categories: {
+            select: {
+              category: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+        } as any,
+        orderBy: {
+          projectId: 'desc',
+        },
+      });
+
+      return projects as any;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        return [];
+      }
+      console.error('Error finding projects by user id:', error);
       return [];
     }
   }
