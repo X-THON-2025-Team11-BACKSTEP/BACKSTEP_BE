@@ -8,7 +8,13 @@ const authController = new AuthController();
 // Google Login Route
 router.get(
   '/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
+  (req, res, next) => {
+    const state = req.query.state as string;
+    passport.authenticate('google', { 
+      scope: ['profile', 'email'],
+      state: state // 프론트에서 받은 state 값을 구글에 전달
+    })(req, res, next);
+  }
 );
 
 // Google Callback Route
