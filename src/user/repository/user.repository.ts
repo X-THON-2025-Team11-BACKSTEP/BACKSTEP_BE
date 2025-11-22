@@ -192,6 +192,29 @@ export class UserRepository {
     }
   }
 
+  async findPurchaseByUserAndProject(userId: number, projectId: number): Promise<PurchaseHistory | null> {
+    try {
+      if (!Number.isInteger(userId) || userId <= 0 || !Number.isInteger(projectId) || projectId <= 0) {
+        return null;
+      }
+
+      const purchase = await this.prisma.purchaseHistory.findFirst({
+        where: {
+          userId,
+          projectId,
+        },
+      });
+      
+      return purchase;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        return null;
+      }
+      console.error('Error finding purchase by user and project:', error);
+      return null;
+    }
+  }
+
   async purchaseProject(userId: number, projectId: number, price: number): Promise<{ purchase: PurchaseHistory; user: User }> {
     try {
       if (!Number.isInteger(userId) || userId <= 0) {
