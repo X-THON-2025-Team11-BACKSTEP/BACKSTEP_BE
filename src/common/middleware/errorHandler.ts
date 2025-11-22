@@ -6,7 +6,6 @@ interface ErrorResponse {
   success: boolean;
   code: number;
   message: string;
-  stack?: string;
 }
 
 export const globalErrorHandler = (
@@ -37,11 +36,6 @@ export const globalErrorHandler = (
     code: statusCode,
     message,
   };
-
-  // Include stack trace in development environment
-  if (process.env.NODE_ENV === 'development') {
-    response.stack = err.stack;
-  }
 
   res.status(statusCode).json(response);
 };
