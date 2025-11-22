@@ -20,7 +20,10 @@ export class SearchService {
         failure_category: failure_category || [],
         data: projects.map(project => ({
           name: project.name,
-          user: project.user.name || project.user.nickname,
+          name_id: project.projectId,
+          user: project.user.name,
+          user_id: project.user.userId,
+          nickname: project.user.nickname,
           period: project.period,
           sale_status: project.saleStatus,
           is_free: project.isFree ? "true" : "false",
@@ -37,6 +40,7 @@ export class SearchService {
         failure_category: failure_category || [],
         data: users.map(user => ({
           user: user.name,
+          user_id: user.userId,
           nickname: user.nickname,
         })),
       };
