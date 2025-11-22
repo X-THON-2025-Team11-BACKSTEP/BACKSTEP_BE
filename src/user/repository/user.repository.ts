@@ -192,67 +192,6 @@ export class UserRepository {
     }
   }
 
-  async updateUserMoney(userId: number, amount: number): Promise<User> {
-    try {
-      if (!Number.isInteger(userId) || userId <= 0) {
-        throw new BadRequestError('Invalid user ID');
-      }
-      if (!Number.isInteger(amount)) {
-        throw new BadRequestError('Invalid amount');
-      }
-
-      return await this.prisma.user.update({
-        where: { userId },
-        data: {
-          money: {
-            decrement: amount,
-          },
-        },
-      });
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        // P2025: Record not found
-        if (error.code === 'P2025') {
-          throw new NotFoundError('User not found');
-        }
-      }
-      // If it's already an AppError, re-throw it
-      if (error instanceof Error && (error.message === 'Invalid user ID' || error.message === 'Invalid amount')) {
-        throw error;
-      }
-      // For any other errors, treat as not found to avoid 500
-      throw new NotFoundError('User not found or update failed');
-    }
-  }
-
-  async createPurchaseHistory(userId: number, projectId: number): Promise<PurchaseHistory> {
-    try {
-      if (!Number.isInteger(userId) || userId <= 0 || !Number.isInteger(projectId) || projectId <= 0) {
-        throw new BadRequestError('Invalid user ID or project ID');
-      }
-
-      return await this.prisma.purchaseHistory.create({
-        data: {
-          userId,
-          projectId,
-        },
-      });
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        // P2003: Foreign key constraint failed
-        if (error.code === 'P2003') {
-          throw new NotFoundError('User or project not found');
-        }
-      }
-      // If it's already an AppError, re-throw it
-      if (error instanceof Error && error.message === 'Invalid user ID or project ID') {
-        throw error;
-      }
-      // For any other errors, treat as not found to avoid 500
-      throw new NotFoundError('User or project not found');
-    }
-  }
-
   async purchaseProject(userId: number, projectId: number, price: number): Promise<{ purchase: PurchaseHistory; user: User }> {
     try {
       if (!Number.isInteger(userId) || userId <= 0) {

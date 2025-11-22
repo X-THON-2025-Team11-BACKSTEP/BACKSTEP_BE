@@ -291,19 +291,6 @@ export class UserController {
       // Purchase project
       const result = await this.userService.purchaseProject(user.userId, projectId, purchaseData.price);
 
-      // Format date to Korean format: "1111년11월11일11시11분11초"
-      const formatKoreanDate = (date: Date): string => {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        const seconds = String(date.getSeconds()).padStart(2, '0');
-        return `${year}년${month}월${day}일${hours}시${minutes}분${seconds}초`;
-      };
-
-      const createdDate = formatKoreanDate(result.purchase.createdAt);
-
       // Format response according to user's specification
       res.status(200).json({
         success: true,
@@ -313,7 +300,7 @@ export class UserController {
             purchase_id: result.purchase.purchaseId,
             user_id: result.user.userId,
             project_id: result.purchase.projectId,
-            created_date: createdDate,
+            created_date: result.purchase.createdAt,
             name: result.user.name,
             nickname: result.user.nickname,
             email: result.user.email,
