@@ -41,16 +41,17 @@ export class UserController {
       // Format response according to user's specification
       res.status(200).json({
         message: '회원 정보 수정 완료',
-        user: {
-          user_id: updatedUser.userId,
-          name: updatedUser.name,
-          nickname: updatedUser.nickname,
-          email: updatedUser.email,
-          money: updatedUser.money,
-          created_at: updatedUser.createdAt,
-          updated_at: updatedUser.updatedAt,
+        data: {
+          user: {
+            user_id: updatedUser.userId,
+            name: updatedUser.name,
+            nickname: updatedUser.nickname,
+            email: updatedUser.email,
+            money: updatedUser.money,
+            created_at: updatedUser.createdAt,
+            updated_at: updatedUser.updatedAt,
+          },
         },
-        statusCode: 200,
       });
     } catch (error) {
       // If it's already an AppError, pass it through
@@ -94,15 +95,16 @@ export class UserController {
       // Format response according to user's specification
       res.status(200).json({
         message: '회원 정보 조회 완료',
-        user: {
-          user_id: user.userId,
-          name: user.name,
-          nickname: user.nickname,
-          email: user.email,
-          created_at: user.createdAt,
-          updated_at: user.updatedAt,
+        data: {
+          user: {
+            user_id: user.userId,
+            name: user.name,
+            nickname: user.nickname,
+            email: user.email,
+            created_at: user.createdAt,
+            updated_at: user.updatedAt,
+          },
         },
-        statusCode: 200,
       });
     } catch (error) {
       // If it's already an AppError, pass it through
@@ -132,16 +134,17 @@ export class UserController {
       // Return current user info including user_id
       res.status(200).json({
         message: '현재 유저 정보',
-        user: {
-          user_id: user.userId,
-          name: user.name,
-          nickname: user.nickname,
-          email: user.email,
-          money: user.money,
-          created_at: user.createdAt,
-          updated_at: user.updatedAt,
+        data: {
+          user: {
+            user_id: user.userId,
+            name: user.name,
+            nickname: user.nickname,
+            email: user.email,
+            money: user.money,
+            created_at: user.createdAt,
+            updated_at: user.updatedAt,
+          },
         },
-        statusCode: 200,
       });
     } catch (error) {
       // If it's already an AppError, pass it through
@@ -185,12 +188,13 @@ export class UserController {
       // Format response according to user's specification
       res.status(200).json({
         message: '좋아요 추가 완료',
-        user: {
-          user_id: helpful.userId,
-          project_id: helpful.projectId,
-          userprojecthelpful_id: helpful.userProjectHelpfulId,
+        data: {
+          user: {
+            user_id: helpful.userId,
+            project_id: helpful.projectId,
+            userprojecthelpful_id: helpful.userProjectHelpfulId,
+          },
         },
-        statusCode: 200,
       });
     } catch (error) {
       // If it's already an AppError, pass it through
@@ -234,7 +238,9 @@ export class UserController {
       // Format response according to user's specification
       res.status(200).json({
         message: '삭제되었습니다',
-        statusCode: 200,
+        data: {
+          user: {},
+        },
       });
     } catch (error) {
       // If it's already an AppError, pass it through
