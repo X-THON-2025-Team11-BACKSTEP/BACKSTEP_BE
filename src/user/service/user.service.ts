@@ -167,6 +167,12 @@ export class UserService {
         throw new BadRequestError('Insufficient funds');
       }
 
+      // Check if user already purchased this project
+      const existingPurchase = await this.userRepository.findPurchaseByUserAndProject(userId, projectId);
+      if (existingPurchase) {
+        throw new BadRequestError('Project already purchased');
+      }
+
       // Purchase project (transaction: update money and create purchase history)
       const result = await this.userRepository.purchaseProject(userId, projectId, price);
       return result;
