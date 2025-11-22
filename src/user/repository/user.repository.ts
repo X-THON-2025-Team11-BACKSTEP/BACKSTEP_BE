@@ -11,20 +11,20 @@ export class UserRepository {
   async updateUser(userId: number, data: { nickname?: string, profileImage?: string, bio?: string }): Promise<User> {
     try {
       // Validate input (at least one field must be present)
-      if (!data.nickname && !data.profileImage && !data.bio) {
+      if (data.nickname === undefined && data.profileImage === undefined && data.bio === undefined) {
         throw new BadRequestError('No update data provided');
       }
 
-      if (data.nickname && typeof data.nickname !== 'string') {
+      if (data.nickname !== undefined && typeof data.nickname !== 'string') {
         throw new BadRequestError('Invalid nickname data');
       }
 
       return await this.prisma.user.update({
         where: { userId },
         data: {
-          ...(data.nickname && { nickname: data.nickname }),
-          ...(data.profileImage && { profileImage: data.profileImage }),
-          ...(data.bio && { bio: data.bio }),
+          ...(data.nickname !== undefined && { nickname: data.nickname }),
+          ...(data.profileImage !== undefined && { profileImage: data.profileImage }),
+          ...(data.bio !== undefined && { bio: data.bio }),
         },
       });
     } catch (error) {

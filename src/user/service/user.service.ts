@@ -30,9 +30,9 @@ export class UserService {
 
       // Update user
       const updatePayload: { nickname?: string, profileImage?: string, bio?: string } = {};
-      if (updateData.nickname) updatePayload.nickname = updateData.nickname;
-      if (updateData.profile_image) updatePayload.profileImage = updateData.profile_image;
-      if (updateData.bio) updatePayload.bio = updateData.bio;
+      if (updateData.nickname !== undefined) updatePayload.nickname = updateData.nickname;
+      if (updateData.profile_image !== undefined) updatePayload.profileImage = updateData.profile_image;
+      if (updateData.bio !== undefined) updatePayload.bio = updateData.bio;
 
       const updatedUser = await this.userRepository.updateUser(userId, updatePayload);
       return updatedUser;
