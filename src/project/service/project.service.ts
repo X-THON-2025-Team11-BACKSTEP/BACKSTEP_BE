@@ -55,6 +55,16 @@ export class ProjectService {
     return project;
   }
 
+  async getProject(projectId: number) {
+    const project = await this.projectRepository.findById(projectId);
+    
+    if (!project) {
+      throw new NotFoundError('프로젝트를 찾을 수 없습니다.');
+    }
+
+    return project;
+  }
+
   async updateProject(projectId: number, userId: number, updateProjectDto: UpdateProjectDto) {
     // 프로젝트 존재 확인
     const project = await this.projectRepository.findById(projectId);

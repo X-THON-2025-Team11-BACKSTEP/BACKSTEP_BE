@@ -12,6 +12,12 @@ router.post(
   projectController.createProject
 );
 
+// GET /projects/:projectId - 프로젝트 조회
+router.get(
+  '/:projectId',
+  projectController.getProject
+);
+
 // PATCH /projects/:projectId - 프로젝트 수정
 router.patch(
   '/:projectId',
