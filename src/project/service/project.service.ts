@@ -131,5 +131,22 @@ export class ProjectService {
 
     return updatedProject;
   }
+
+  async deleteProject(projectId: number, userId: number) {
+    // 프로젝트 존재 확인
+    const project = await this.projectRepository.findById(projectId);
+    
+    if (!project) {
+      throw new NotFoundError('프로젝트를 찾을 수 없습니다.');
+    }
+
+    // 프로젝트 소유자 확인
+    if (project.userId !== userId) {
+      throw new ForbiddenError('프로젝트를 삭제할 권한이 없습니다.');
+    }
+
+    // 프로젝트 삭제
+    await this.projectRepository.deleteProject(projectId);
+  }
 }
 

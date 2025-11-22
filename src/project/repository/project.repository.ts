@@ -117,5 +117,25 @@ export class ProjectRepository {
       where: { projectId },
     });
   }
+
+  async deleteProject(projectId: number) {
+    // 관련 데이터 먼저 삭제
+    await prisma.userProjectHelpful.deleteMany({
+      where: { projectId },
+    });
+    
+    await prisma.purchaseHistory.deleteMany({
+      where: { projectId },
+    });
+    
+    await prisma.projectCategoryMap.deleteMany({
+      where: { projectId },
+    });
+
+    // 프로젝트 삭제
+    return await prisma.project.delete({
+      where: { projectId },
+    });
+  }
 }
 
