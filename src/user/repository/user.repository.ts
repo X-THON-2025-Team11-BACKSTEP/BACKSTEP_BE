@@ -427,5 +427,71 @@ export class UserRepository {
       return [];
     }
   }
+
+  async findPurchasedProjectsByUserId(userId: number): Promise<Array<{
+    purchaseId: number;
+    project: {
+      projectId: number;
+      name: string | null;
+      period: string | null;
+      image: string | null;
+      user: {
+        name: string | null;
+      };
+      categories: Array<{
+        category: {
+          name: string | null;
+        };
+      }>;
+    };
+  }>> {
+    try {
+      if (!Number.isInteger(userId) || userId <= 0) {
+        return [];
+      }
+
+      const purchasedProjects = await this.prisma.purchaseHistory.findMany({
+        where: {
+          userId,
+        },
+        select: {
+          purchaseId: true,
+          project: {
+            select: {
+              projectId: true,
+              name: true,
+              period: true,
+              image: true,
+              user: {
+                select: {
+                  name: true,
+                },
+              },
+              categories: {
+                select: {
+                  category: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+            } as any,
+          },
+        },
+        orderBy: {
+          purchaseId: 'desc',
+        },
+      });
+
+      return purchasedProjects as any;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        return [];
+      }
+      console.error('Error finding purchased projects by user id:', error);
+      return [];
+    }
+  }
 }
 
