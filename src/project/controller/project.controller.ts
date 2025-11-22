@@ -20,7 +20,7 @@ export class ProjectController {
       if (!user) {
         throw new BadRequestError('사용자 정보를 찾을 수 없습니다.');
       }
-
+      //console.log(user)
       const userId = user.userId;
       const createProjectDto: CreateProjectDto = req.body;
 
@@ -83,7 +83,27 @@ export class ProjectController {
 
       await this.projectService.createProject(userId, createProjectDto);
 
-      res.json(SuccessResponse.created(null, '업로드 완료'));
+      res.status(200).json({
+        success: true,
+        code: 200,
+        message: '글 작성 완료 및 업로드 완료',
+        data: {
+          name : createProjectDto.name,
+          user: user.name,
+          nickname: user.nickname,
+          period : createProjectDto.period,
+          personal: createProjectDto.personnel,
+          intent: createProjectDto.intent,
+          my_role: createProjectDto.my_role,
+          sale_stauts: createProjectDto.sale_status,
+          if_free: createProjectDto.is_free,
+          price: createProjectDto.price,
+          result_url: createProjectDto.result_url,
+          failure_category: createProjectDto.failure_category,
+          failure: createProjectDto.failure,
+          growth_point: createProjectDto.growth_point
+        }
+      });
     } catch (error) {
       next(error);
     }
@@ -109,24 +129,27 @@ export class ProjectController {
         [cat.category.name!]: [cat.answer1, cat.answer2, cat.answer3]
       }));
 
-      const responseData = {
-        name: project.name,
-        user: project.user.name || project.user.nickname,
-        period: project.period,
-        personnel: project.personnel,
-        intent: project.intent,
-        my_role: project.myRole,
-        sale_status: project.saleStatus,
-        is_free: project.isFree ? "true" : "false",
-        price: project.price,
-        result_url: project.resultUrl,
-        failure_category: failureCategory,
-        failure: failure,
-        growth_point: project.growthPoint,
-        statusCode: 200,
-      };
-
-      res.json(SuccessResponse.ok(responseData, '완료'));
+      res.status(200).json({
+        success: true,
+        code: 200,
+        message: '글 디테일 불러오기 완료',
+        data: {
+          name: project.name,
+          user: project.user.name,
+          nickname: project.user.nickname,
+          period: project.period,
+          personnel: project.personnel,
+          intent: project.intent,
+          my_role: project.myRole,
+          sale_status: project.saleStatus,
+          is_free: project.isFree ? "true" : "false",
+          price: project.price,
+          result_url: project.resultUrl,
+          failure_category: failureCategory,
+          failure: failure,
+          growth_point: project.growthPoint,
+        }
+      });
     } catch (error) {
       next(error);
     }
@@ -147,32 +170,40 @@ export class ProjectController {
         throw new BadRequestError('잘못된 프로젝트 ID입니다.');
       }
 
+      // 빈 문자열("")인 필드를 undefined로 처리하여 누락된 것으로 간주
+      const cleanedUpdateDto: UpdateProjectDto = {};
+      for (const [key, value] of Object.entries(updateProjectDto)) {
+        if (value !== "" && value !== null && value !== undefined) {
+          cleanedUpdateDto[key as keyof UpdateProjectDto] = value;
+        }
+      }
+
       // 업데이트할 필드가 있는지 확인
-      if (Object.keys(updateProjectDto).length === 0) {
+      if (Object.keys(cleanedUpdateDto).length === 0) {
         throw new BadRequestError('업데이트할 필드가 없습니다.');
       }
 
       // failure 관련 검증 (failure_category와 failure가 모두 있는 경우)
-      if (updateProjectDto.failure_category || updateProjectDto.failure) {
-        if (!updateProjectDto.failure_category) {
+      if (cleanedUpdateDto.failure_category || cleanedUpdateDto.failure) {
+        if (!cleanedUpdateDto.failure_category) {
           throw new BadRequestError('failure_category 필드가 누락되었습니다. (참고: failure_cateory가 아닌 failure_category로 보내주세요)');
         }
-        if (!updateProjectDto.failure) {
+        if (!cleanedUpdateDto.failure) {
           throw new BadRequestError('failure 필드가 누락되었습니다.');
         }
 
-        if (updateProjectDto.failure_category.length > 5 || updateProjectDto.failure_category.length < 1) {
+        if (cleanedUpdateDto.failure_category.length > 5 || cleanedUpdateDto.failure_category.length < 1) {
           throw new BadRequestError('잘못된 카테고리 개수 입니다.');
         }
 
-        if (updateProjectDto.failure_category.length !== updateProjectDto.failure.length) {
+        if (cleanedUpdateDto.failure_category.length !== cleanedUpdateDto.failure.length) {
           throw new BadRequestError('failure_category와 failure의 개수가 일치하지 않습니다.');
         }
 
         // 각 카테고리별 답변 검증
-        for (let i = 0; i < updateProjectDto.failure_category.length; i++) {
-          const categoryName = updateProjectDto.failure_category[i];
-          const failureItem = updateProjectDto.failure[i];
+        for (let i = 0; i < cleanedUpdateDto.failure_category.length; i++) {
+          const categoryName = cleanedUpdateDto.failure_category[i];
+          const failureItem = cleanedUpdateDto.failure[i];
           
           if (!failureItem[categoryName]) {
             throw new BadRequestError(`카테고리 "${categoryName}"에 해당하는 답변이 없습니다.`);
@@ -193,23 +224,23 @@ export class ProjectController {
       }
 
       // 기타 필드 검증
-      if (updateProjectDto.personnel !== undefined && updateProjectDto.personnel < 1) {
+      if (cleanedUpdateDto.personnel !== undefined && cleanedUpdateDto.personnel < 1) {
         throw new BadRequestError('인원이 한명 미만 입니다.');
       }
 
-      if (updateProjectDto.price !== undefined && updateProjectDto.price < 0) {
+      if (cleanedUpdateDto.price !== undefined && cleanedUpdateDto.price < 0) {
         throw new BadRequestError('가격이 잘못된 값입니다.');
       }
 
-      if (updateProjectDto.sale_status && 
-          updateProjectDto.sale_status !== "NOTSALE" && 
-          updateProjectDto.sale_status !== "FREE" && 
-          updateProjectDto.sale_status !== "ONSALE") {
+      if (cleanedUpdateDto.sale_status && 
+          cleanedUpdateDto.sale_status !== "NOTSALE" && 
+          cleanedUpdateDto.sale_status !== "FREE" && 
+          cleanedUpdateDto.sale_status !== "ONSALE") {
         throw new BadRequestError('sale_status가 잘못된 값입니다.');
       }
 
       // 프로젝트 업데이트
-      const updatedProject = await this.projectService.updateProject(projectId, userId, updateProjectDto);
+      const updatedProject = await this.projectService.updateProject(projectId, userId, cleanedUpdateDto);
 
       if (!updatedProject) {
         throw new BadRequestError('프로젝트 업데이트에 실패했습니다.');
@@ -221,27 +252,31 @@ export class ProjectController {
         [cat.category.name!]: [cat.answer1, cat.answer2, cat.answer3]
       }));
 
-      const responseData = {
-        name: updatedProject.name,
-        user: updatedProject.user.name || updatedProject.user.nickname,
-        period: updatedProject.period,
-        personnel: updatedProject.personnel,
-        intent: updatedProject.intent,
-        my_role: updatedProject.myRole,
-        sale_status: updatedProject.saleStatus,
-        is_free: updatedProject.isFree ? "true" : "false",
-        price: updatedProject.price,
-        result_url: updatedProject.resultUrl,
-        failure_category: failureCategory,
-        failure: failure,
-        growth_point: updatedProject.growthPoint,
-        statusCode: 200,
-      };
-
-      res.json(SuccessResponse.ok(responseData, '완료'));
+      res.status(200).json({
+        success: true,
+        code: 200,
+        message: "글 수정 완료",
+        data: {
+          name: updatedProject.name,
+          user: updatedProject.user.name,
+          nickname: updatedProject.user.nickname,
+          period: updatedProject.period,
+          personnel: updatedProject.personnel,
+          intent: updatedProject.intent,
+          my_role: updatedProject.myRole,
+          sale_status: updatedProject.saleStatus,
+          is_free: updatedProject.isFree ? "true" : "false",
+          price: updatedProject.price,
+          result_url: updatedProject.resultUrl,
+          failure_category: failureCategory,
+          failure: failure,
+          growth_point: updatedProject.growthPoint,
+        }
+      });
     } catch (error) {
       next(error);
     }
   };
 }
+
 

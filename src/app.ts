@@ -25,6 +25,8 @@ import passport from 'passport';
 import authRoutes from './auth/routes/auth.routes';
 import userRoutes from './user/routes/user.routes';
 import projectRoutes from './project/routes/project.routes';
+import searchRoutes from './search/routes/search.routes';
+
 import { globalErrorHandler } from './common/middleware/errorHandler';
 import { NotFoundError } from './common/error/AppError';
 
@@ -42,6 +44,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 // helpful routes must be registered before /api/projects to avoid route conflicts
 app.use('/api/projects', projectRoutes);
+
+app.use('/api/search', searchRoutes);
+
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
