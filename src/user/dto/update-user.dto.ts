@@ -1,4 +1,4 @@
 export class UpdateUserDto {
-  nickname: string;
+  nickname!: string;
 }
 
