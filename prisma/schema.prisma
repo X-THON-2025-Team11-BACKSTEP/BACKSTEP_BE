@@ -22,8 +22,6 @@ model Project {
   personnel      Int?
   intent         String?
   myRole         String?         @map("my_role")
-  failure        String?
-  failureReason  String?         @map("failure_reason")
   growthPoint    String?         @map("growth_point")
   saleStatus     SaleStatus?     @map("sale_status")
   createdAt      DateTime        @default(now())               @map("created_at")
