@@ -178,6 +178,8 @@ router.get(
  *                           type: integer
  *                         is_helpful:
  *                           type: boolean
+ *                         is_purchased:
+ *                           type: boolean
  *                         user:
  *                           type: string
  */

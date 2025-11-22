@@ -175,7 +175,8 @@ export class ProjectController {
           is_free: project.isFree ? "true" : "false",
           price: project.price,
           helpful_count: project.helpfulCount,
-          is_helpful: (project as any).isHelpful || false, // 좋아요 여부 추가
+          is_helpful: (project as any).isHelpful || false, // 좋아요 여부
+          is_purchased: (project as any).isPurchased || false, // 구매 여부 추가
           result_url: project.resultUrl,
           failure_category: failureCategory,
           failure: failure,

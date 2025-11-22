@@ -75,6 +75,7 @@ export class ProjectRepository {
     if (!project) return null;
 
     let isHelpful = false;
+    let isPurchased = false;
     if (currentUserId) {
       const helpful = await prisma.userProjectHelpful.findUnique({
         where: {
@@ -85,11 +86,20 @@ export class ProjectRepository {
         },
       });
       isHelpful = !!helpful;
+
+      const purchase = await prisma.purchaseHistory.findFirst({
+        where: {
+          userId: currentUserId,
+          projectId,
+        },
+      });
+      isPurchased = !!purchase;
     }
 
     return {
       ...project,
       isHelpful,
+      isPurchased,
     };
   }
 
