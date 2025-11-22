@@ -14,7 +14,9 @@ app.use(cors({
   origin: [
     process.env.CLIENT_URL || 'http://localhost:3001',
     'http://localhost:3001',
-    'http://localhost:5173' // Vite 기본 포트도 예비로 추가
+    'http://localhost:5173',
+    'https://ccscaps.com',
+    'localhost:3000', // Vite 기본 포트도 예비로 추가
   ],
   credentials: true, // 쿠키/인증 헤더 허용
 }));
@@ -27,6 +29,8 @@ app.use('/uploads', express.static('uploads'));
 // Passport Config
 import './auth/utils/passport.config';
 import passport from 'passport';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger.config';
 
 // Routes
 import authRoutes from './auth/routes/auth.routes';
@@ -55,6 +59,9 @@ app.use('/api/images', imageRoutes);
 app.use('/api/projects', projectRoutes);
 
 app.use('/api/search', searchRoutes);
+
+// Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
