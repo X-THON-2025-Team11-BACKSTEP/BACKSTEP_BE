@@ -34,7 +34,7 @@ model Project {
   user           User               @relation(fields: [userId], references: [userId])
   helpfulMarks   UserProjectHelpful[]
   categories     ProjectCategoryMap[]
-  downloads      DownloadHistory[]
+  purchases      PurchaseHistory[]
 
   @@map("프로젝트")
 }
@@ -51,7 +51,7 @@ model User {
 
   projects        Project[]
   helpfulProjects UserProjectHelpful[]
-  downloads       DownloadHistory[]
+  purchases       PurchaseHistory[]
 
   @@map("유저")
 }
@@ -99,16 +99,14 @@ model ProjectCategoryMap {
   @@map("프로젝트카테고리 매핑")
 }
 
-model DownloadHistory {
-  downloadId Int      @id @default(autoincrement()) @map("download_id")
+model PurchaseHistory {
+  purchaseId Int      @id @default(autoincrement()) @map("purchase_id")
   userId     Int      @map("user_id")
   projectId  Int      @map("project_id")
-  isFree     Boolean? @map("is_free")
-  price      Int?     @map("price")
   createdAt  DateTime @default(now())               @map("created_at")
 
   user    User    @relation(fields: [userId], references: [userId])
   project Project @relation(fields: [projectId], references: [projectId])
 
-  @@map("다운로드 이력")
+  @@map("구매 이력")
 }
