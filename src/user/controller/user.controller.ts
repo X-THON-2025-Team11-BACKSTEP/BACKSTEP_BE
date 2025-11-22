@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserService } from '../service/user.service';
 import { UpdateUserDto } from '../dto/update-user.dto';
+import { PurchaseProjectDto } from '../dto/purchase-project.dto';
 import { User } from '@prisma/client';
 import { BadRequestError, UnauthorizedError, AppError, NotFoundError } from '../../common/error/AppError';
 import { SuccessResponse } from '../../common/utils/successResponse';
@@ -242,6 +243,95 @@ export class UserController {
       // For unexpected errors, convert to NotFoundError to avoid 500
       console.error('Unexpected error in removeHelpful:', error);
       next(new NotFoundError('Helpful not found'));
+    }
+  };
+
+  purchaseProject = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // Validate user is authenticated
+      if (!req.user) {
+        throw new UnauthorizedError('User authentication required');
+      }
+
+      const user = req.user as User;
+      const projectIdParam = req.params.projectId;
+      const purchaseData: PurchaseProjectDto = req.body;
+
+      // Validate projectId parameter exists
+      if (!projectIdParam || projectIdParam.trim() === '') {
+        throw new BadRequestError('projectId parameter is required');
+      }
+
+      // Validate projectId is a number
+      const projectId = parseInt(projectIdParam, 10);
+      if (isNaN(projectId) || projectId <= 0 || !Number.isInteger(projectId)) {
+        throw new BadRequestError('Invalid projectId: must be a positive integer');
+      }
+
+      // Check for very large numbers
+      if (projectId > Number.MAX_SAFE_INTEGER) {
+        throw new BadRequestError('Invalid projectId: number is too large');
+      }
+
+      // Validate request body
+      if (!purchaseData || typeof purchaseData !== 'object') {
+        throw new BadRequestError('Invalid request body');
+      }
+
+      // Validate price is provided
+      if (purchaseData.price === undefined || purchaseData.price === null) {
+        throw new BadRequestError('price field is required');
+      }
+
+      // Validate price is a number
+      if (typeof purchaseData.price !== 'number' || !Number.isInteger(purchaseData.price) || purchaseData.price <= 0) {
+        throw new BadRequestError('Invalid price: must be a positive integer');
+      }
+
+      // Purchase project
+      const result = await this.userService.purchaseProject(user.userId, projectId, purchaseData.price);
+
+      // Format date to Korean format: "1111년11월11일11시11분11초"
+      const formatKoreanDate = (date: Date): string => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+        return `${year}년${month}월${day}일${hours}시${minutes}분${seconds}초`;
+      };
+
+      const createdDate = formatKoreanDate(result.purchase.createdAt);
+
+      // Format response according to user's specification
+      res.status(200).json({
+        success: true,
+        message: '구매 이력 추가 완료',
+        data: {
+          user: {
+            purchase_id: result.purchase.purchaseId,
+            user_id: result.user.userId,
+            project_id: result.purchase.projectId,
+            created_date: createdDate,
+            name: result.user.name,
+            nickname: result.user.nickname,
+            email: result.user.email,
+            money: result.user.money,
+            created_at: result.user.createdAt,
+            updated_at: result.user.updatedAt,
+          },
+        },
+        code: 200,
+      });
+    } catch (error) {
+      // If it's already an AppError, pass it through
+      if (error instanceof AppError) {
+        return next(error);
+      }
+      // For unexpected errors, convert to BadRequestError to avoid 500
+      console.error('Unexpected error in purchaseProject:', error);
+      next(new BadRequestError('Purchase failed'));
     }
   };
 }
