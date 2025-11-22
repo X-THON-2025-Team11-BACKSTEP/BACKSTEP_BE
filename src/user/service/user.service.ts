@@ -1,4 +1,4 @@
-import { User } from '@prisma/client';
+import { User, UserProjectHelpful } from '@prisma/client';
 import { UserRepository } from '../repository/user.repository';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { NotFoundError, InternalServerError, AppError, BadRequestError } from '../../common/error/AppError';
@@ -62,6 +62,77 @@ export class UserService {
       // For unexpected errors, convert to NotFoundError to avoid 500
       console.error('Error getting user profile:', error);
       throw new NotFoundError('User not found');
+    }
+  }
+
+  async addHelpful(userId: number, projectId: number): Promise<UserProjectHelpful> {
+    try {
+      // Validate userId and projectId
+      if (!Number.isInteger(userId) || userId <= 0) {
+        throw new BadRequestError('Invalid user ID');
+      }
+      if (!Number.isInteger(projectId) || projectId <= 0) {
+        throw new BadRequestError('Invalid project ID');
+      }
+
+      // Check if user exists
+      const user = await this.userRepository.findUserById(userId);
+      if (!user) {
+        throw new NotFoundError('User not found');
+      }
+
+      // Check if project exists
+      const project = await this.userRepository.findProjectById(projectId);
+      if (!project) {
+        throw new NotFoundError('Project not found');
+      }
+
+      // Check if helpful already exists
+      const existingHelpful = await this.userRepository.findHelpfulByUserAndProject(userId, projectId);
+      if (existingHelpful) {
+        throw new BadRequestError('Helpful already exists');
+      }
+
+      // Create helpful
+      const helpful = await this.userRepository.createHelpful(userId, projectId);
+      return helpful;
+    } catch (error) {
+      // If it's already an AppError, re-throw it
+      if (error instanceof AppError) {
+        throw error;
+      }
+      // For unexpected errors, convert to NotFoundError to avoid 500
+      console.error('Error adding helpful:', error);
+      throw new NotFoundError('User or project not found');
+    }
+  }
+
+  async removeHelpful(userId: number, projectId: number): Promise<void> {
+    try {
+      // Validate userId and projectId
+      if (!Number.isInteger(userId) || userId <= 0) {
+        throw new BadRequestError('Invalid user ID');
+      }
+      if (!Number.isInteger(projectId) || projectId <= 0) {
+        throw new BadRequestError('Invalid project ID');
+      }
+
+      // Check if helpful exists
+      const existingHelpful = await this.userRepository.findHelpfulByUserAndProject(userId, projectId);
+      if (!existingHelpful) {
+        throw new NotFoundError('Helpful not found');
+      }
+
+      // Delete helpful
+      await this.userRepository.deleteHelpful(userId, projectId);
+    } catch (error) {
+      // If it's already an AppError, re-throw it
+      if (error instanceof AppError) {
+        throw error;
+      }
+      // For unexpected errors, convert to NotFoundError to avoid 500
+      console.error('Error removing helpful:', error);
+      throw new NotFoundError('Helpful not found');
     }
   }
 }
