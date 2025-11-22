@@ -15,6 +15,7 @@ router.post(
 // GET /projects/:projectId - 프로젝트 조회
 router.get(
   '/:projectId',
+  authenticateJwt,
   projectController.getProject
 );
 

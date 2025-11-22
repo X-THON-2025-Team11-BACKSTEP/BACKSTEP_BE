@@ -81,7 +81,8 @@ export class ProjectController {
       }
 
 
-      await this.projectService.createProject(userId, createProjectDto);
+      const project = await this.projectService.createProject(userId, createProjectDto);
+
 
       res.status(200).json({
         success: true,
@@ -89,7 +90,9 @@ export class ProjectController {
         message: '글 작성 완료 및 업로드 완료',
         data: {
           name : createProjectDto.name,
+          name_id: project.projectId,
           user: user.name,
+          user_id: user.userId,
           nickname: user.nickname,
           period : createProjectDto.period,
           personal: createProjectDto.personnel,
@@ -136,7 +139,9 @@ export class ProjectController {
         message: '글 디테일 불러오기 완료',
         data: {
           name: project.name,
+          name_id: project.projectId,
           user: project.user.name,
+          user_id: project.user.userId,
           nickname: project.user.nickname,
           period: project.period,
           personnel: project.personnel,
@@ -149,7 +154,6 @@ export class ProjectController {
           failure_category: failureCategory,
           failure: failure,
           growth_point: project.growthPoint,
-          image: project.image,
         }
       });
     } catch (error) {
@@ -260,7 +264,9 @@ export class ProjectController {
         message: "글 수정 완료",
         data: {
           name: updatedProject.name,
+          name_id: updatedProject.projectId,
           user: updatedProject.user.name,
+          user_id: updatedProject.user.userId,
           nickname: updatedProject.user.nickname,
           period: updatedProject.period,
           personnel: updatedProject.personnel,
@@ -273,7 +279,6 @@ export class ProjectController {
           failure_category: failureCategory,
           failure: failure,
           growth_point: updatedProject.growthPoint,
-          image: updatedProject.image,
         }
       });
     } catch (error) {
