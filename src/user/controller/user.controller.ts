@@ -53,7 +53,7 @@ export class UserController {
           nickname: updatedUser.nickname,
           email: updatedUser.email,
           money: updatedUser.money,
-          bio: updatedUser.bio,
+          bio: (updatedUser as any).bio ?? null,
           profile_image: (updatedUser as any).profileImage ?? null,
           created_at: updatedUser.createdAt,
           updated_at: updatedUser.updatedAt,
@@ -107,7 +107,7 @@ export class UserController {
           name: user.name,
           nickname: user.nickname,
           email: user.email,
-          bio: user.bio,
+          bio: (user as any).bio ?? null,
           profile_image: (user as any).profileImage ?? null,
           created_at: user.createdAt,
           updated_at: user.updatedAt,
@@ -148,7 +148,7 @@ export class UserController {
           nickname: user.nickname,
           email: user.email,
           money: user.money,
-          bio: user.bio,
+          bio: (user as any).bio ?? null,
           profile_image: (user as any).profileImage ?? null,
           created_at: user.createdAt,
           updated_at: user.updatedAt,
@@ -466,6 +466,71 @@ export class UserController {
       // For unexpected errors, convert to NotFoundError to avoid 500
       console.error('Unexpected error in getUserPosts:', error);
       next(new NotFoundError('Failed to get user posts'));
+    }
+  };
+
+  getPurchasedProjects = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // Validate user is authenticated
+      if (!req.user) {
+        throw new UnauthorizedError('User authentication required');
+      }
+
+      // Get userId from params
+      const userIdParam = req.params.userId;
+      
+      // Validate userId parameter exists
+      if (!userIdParam || userIdParam.trim() === '') {
+        throw new BadRequestError('userId parameter is required');
+      }
+
+      // Validate userId is a number
+      const userId = parseInt(userIdParam, 10);
+      if (isNaN(userId) || userId <= 0 || !Number.isInteger(userId)) {
+        throw new BadRequestError('Invalid userId: must be a positive integer');
+      }
+
+      // Check for very large numbers
+      if (userId > Number.MAX_SAFE_INTEGER) {
+        throw new BadRequestError('Invalid userId: number is too large');
+      }
+
+      // Get purchased projects
+      const purchasedProjects = await this.userService.getPurchasedProjects(userId);
+
+      // Format response according to user's specification
+      const projects = purchasedProjects.map((item) => {
+        const failureCategories = item.project.categories
+          .map((cat) => cat.category.name)
+          .filter((name): name is string => name !== null);
+
+        return {
+          name: item.project.name ?? '',
+          user: item.project.user.name ?? '',
+          project_id: item.project.projectId,
+          project_image: item.project.image ?? '',
+          period: item.project.period ?? '',
+          failure_catagory: failureCategories,
+        };
+      });
+
+      res.status(200).json({
+        success: true,
+        message: '완료',
+        data: {
+          data_total: projects.length,
+          projects,
+        },
+        code: 200,
+      });
+    } catch (error) {
+      // If it's already an AppError, pass it through
+      if (error instanceof AppError) {
+        return next(error);
+      }
+      // For unexpected errors, convert to NotFoundError to avoid 500
+      console.error('Unexpected error in getPurchasedProjects:', error);
+      next(new NotFoundError('Failed to get purchased projects'));
     }
   };
 }

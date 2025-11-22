@@ -17,6 +17,9 @@ router.get('/:userId/helpful', authenticateJwt, userController.getHelpfulProject
 // GET /users/:userId/post - Get user's posts (projects)
 router.get('/:userId/post', authenticateJwt, userController.getUserPosts);
 
+// GET /users/:userId/purchase - Get user's purchased projects
+router.get('/:userId/purchase', authenticateJwt, userController.getPurchasedProjects);
+
 // GET /users/:userId - Get user profile
 router.get('/:userId', authenticateJwt, userController.getUserProfile);
 

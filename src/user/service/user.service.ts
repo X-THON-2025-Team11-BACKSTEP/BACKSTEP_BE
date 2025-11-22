@@ -280,5 +280,48 @@ export class UserService {
       throw new NotFoundError('Failed to get user projects');
     }
   }
+
+  async getPurchasedProjects(userId: number): Promise<Array<{
+    purchaseId: number;
+    project: {
+      projectId: number;
+      name: string | null;
+      period: string | null;
+      image: string | null;
+      user: {
+        name: string | null;
+      };
+      categories: Array<{
+        category: {
+          name: string | null;
+        };
+      }>;
+    };
+  }>> {
+    try {
+      // Validate userId
+      if (!Number.isInteger(userId) || userId <= 0) {
+        throw new BadRequestError('Invalid user ID');
+      }
+
+      // Check if user exists
+      const user = await this.userRepository.findUserById(userId);
+      if (!user) {
+        throw new NotFoundError('User not found');
+      }
+
+      // Get purchased projects
+      const purchasedProjects = await this.userRepository.findPurchasedProjectsByUserId(userId);
+      return purchasedProjects;
+    } catch (error) {
+      // If it's already an AppError, re-throw it
+      if (error instanceof AppError) {
+        throw error;
+      }
+      // For unexpected errors, convert to NotFoundError to avoid 500
+      console.error('Error getting purchased projects:', error);
+      throw new NotFoundError('Failed to get purchased projects');
+    }
+  }
 }
 
