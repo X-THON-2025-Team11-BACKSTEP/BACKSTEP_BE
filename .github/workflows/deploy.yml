@@ -1,0 +1,46 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Connect & Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: |
+            # 프로젝트 경로로 이동 (서버 설정에 맞게 수정 필요)
+            cd /opt/app
+            
+            # 최신 코드 받기
+            git pull origin main
+
+            # env 주입
+            echo "${{ secrets.ENV_FILE }}" > .env
+
+            # 의존성 설치
+            npm install
+            
+            # Prisma 클라이언트 생성
+            npx prisma generate
+            
+            # DB 마이그레이션 적용 (필요 시 주석 해제)
+            # npx prisma migrate deploy
+            
+            # 프로젝트 빌드
+            npm run build
+            
+            # PM2 재시작 (프로세스 이름: nodebe)
+            # 최초 실행 시: pm2 start dist/server.js --name "nodebe"
+            pm2 restart backstep-be

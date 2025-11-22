@@ -1,0 +1,17 @@
+name: PR Notification
+
+on:
+  pull_request:
+    types: [opened, reopened, closed]
+
+jobs:
+  discord-notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Discord Notification
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_PR_WEBHOOK_URL }}
+        with:
+          args: 'PR이 {{ EVENT_PAYLOAD.action }} 되었습니다: {{ EVENT_PAYLOAD.pull_request.html_url }}'
+

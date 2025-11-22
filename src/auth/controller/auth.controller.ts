@@ -14,9 +14,14 @@ export class AuthController {
     // Passport attaches the user to req.user
     const user = req.user as User;
     const token = this.authService.generateToken(user);
+
+    const redirectUrl = process.env.GOOGLE_LOGIN_REDIRECT_URL;
+
+    if (redirectUrl) {
+      return res.redirect(`${redirectUrl}?token=${token}`);
+    }
     
-    // In a real SPA, you might redirect to frontend with token in query param or cookie
-    // For API test, just returning JSON
+    // If no redirect URL is configured, return JSON (for testing)
     res.json(SuccessResponse.ok({ token, user }));
   };
 }
