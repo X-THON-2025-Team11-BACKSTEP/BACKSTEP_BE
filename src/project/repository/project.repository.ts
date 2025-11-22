@@ -56,5 +56,62 @@ export class ProjectRepository {
       },
     });
   }
+
+  async findById(projectId: number) {
+    return await prisma.project.findUnique({
+      where: { projectId },
+      include: {
+        user: true,
+        categories: {
+          include: {
+            category: true,
+          },
+        },
+      },
+    });
+  }
+
+  async updateProject(projectId: number, data: {
+    name?: string;
+    period?: string;
+    personnel?: number;
+    intent?: string;
+    myRole?: string;
+    saleStatus?: SaleStatus;
+    isFree?: boolean;
+    price?: number;
+    resultUrl?: string;
+    growthPoint?: string;
+  }) {
+    return await prisma.project.update({
+      where: { projectId },
+      data: {
+        ...(data.name !== undefined && { name: data.name }),
+        ...(data.period !== undefined && { period: data.period }),
+        ...(data.personnel !== undefined && { personnel: data.personnel }),
+        ...(data.intent !== undefined && { intent: data.intent }),
+        ...(data.myRole !== undefined && { myRole: data.myRole }),
+        ...(data.saleStatus !== undefined && { saleStatus: data.saleStatus }),
+        ...(data.isFree !== undefined && { isFree: data.isFree }),
+        ...(data.price !== undefined && { price: data.price }),
+        ...(data.resultUrl !== undefined && { resultUrl: data.resultUrl }),
+        ...(data.growthPoint !== undefined && { growthPoint: data.growthPoint }),
+      },
+      include: {
+        user: true,
+        categories: {
+          include: {
+            category: true,
+          },
+        },
+      },
+    });
+  }
+
+  async deleteProjectCategoryMaps(projectId: number) {
+    return await prisma.projectCategoryMap.deleteMany({
+      where: { projectId },
+    });
+  }
 }
 

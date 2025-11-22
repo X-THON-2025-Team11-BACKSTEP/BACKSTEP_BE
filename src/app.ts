@@ -38,7 +38,6 @@ if (process.env.NODE_ENV === 'development') {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
-
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
