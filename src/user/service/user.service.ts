@@ -190,5 +190,50 @@ export class UserService {
       throw new BadRequestError('Purchase failed');
     }
   }
+
+  async getHelpfulProjects(userId: number): Promise<Array<{
+    userProjectHelpfulId: number;
+    project: {
+      projectId: number;
+      name: string | null;
+      period: string | null;
+      saleStatus: string | null;
+      isFree: boolean | null;
+      price: number | null;
+      user: {
+        name: string | null;
+      };
+      categories: Array<{
+        category: {
+          name: string | null;
+        };
+      }>;
+    };
+  }>> {
+    try {
+      // Validate userId
+      if (!Number.isInteger(userId) || userId <= 0) {
+        throw new BadRequestError('Invalid user ID');
+      }
+
+      // Check if user exists
+      const user = await this.userRepository.findUserById(userId);
+      if (!user) {
+        throw new NotFoundError('User not found');
+      }
+
+      // Get helpful projects
+      const helpfulProjects = await this.userRepository.findHelpfulProjectsByUserId(userId);
+      return helpfulProjects;
+    } catch (error) {
+      // If it's already an AppError, re-throw it
+      if (error instanceof AppError) {
+        throw error;
+      }
+      // For unexpected errors, convert to NotFoundError to avoid 500
+      console.error('Error getting helpful projects:', error);
+      throw new NotFoundError('Failed to get helpful projects');
+    }
+  }
 }
 

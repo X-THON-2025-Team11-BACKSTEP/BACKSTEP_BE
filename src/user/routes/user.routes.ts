@@ -11,6 +11,9 @@ router.get('/me', authenticateJwt, userController.getCurrentUser);
 // PATCH /users - Update user information
 router.patch('/', authenticateJwt, userController.updateUser);
 
+// GET /users/:userId/helpful - Get helpful projects for a user
+router.get('/:userId/helpful', authenticateJwt, userController.getHelpfulProjects);
+
 // GET /users/:userId - Get user profile
 router.get('/:userId', authenticateJwt, userController.getUserProfile);
 

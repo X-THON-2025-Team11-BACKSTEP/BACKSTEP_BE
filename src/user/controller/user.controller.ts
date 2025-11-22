@@ -48,7 +48,7 @@ export class UserController {
           nickname: updatedUser.nickname,
           email: updatedUser.email,
           money: updatedUser.money,
-          profile_image: updatedUser.profileImage,
+          profile_image: (updatedUser as any).profileImage ?? null,
           created_at: updatedUser.createdAt,
           updated_at: updatedUser.updatedAt,
         },
@@ -101,7 +101,7 @@ export class UserController {
           name: user.name,
           nickname: user.nickname,
           email: user.email,
-          profile_image: user.profileImage,
+          profile_image: (user as any).profileImage ?? null,
           created_at: user.createdAt,
           updated_at: user.updatedAt,
         },
@@ -141,7 +141,7 @@ export class UserController {
           nickname: user.nickname,
           email: user.email,
           money: user.money,
-          profile_image: user.profileImage,
+          profile_image: (user as any).profileImage ?? null,
           created_at: user.createdAt,
           updated_at: user.updatedAt,
         },
@@ -322,6 +322,73 @@ export class UserController {
       // For unexpected errors, convert to BadRequestError to avoid 500
       console.error('Unexpected error in purchaseProject:', error);
       next(new BadRequestError('Purchase failed'));
+    }
+  };
+
+  getHelpfulProjects = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // Validate user is authenticated
+      if (!req.user) {
+        throw new UnauthorizedError('User authentication required');
+      }
+
+      // Get userId from params
+      const userIdParam = req.params.userId;
+      
+      // Validate userId parameter exists
+      if (!userIdParam || userIdParam.trim() === '') {
+        throw new BadRequestError('userId parameter is required');
+      }
+
+      // Validate userId is a number
+      const userId = parseInt(userIdParam, 10);
+      if (isNaN(userId) || userId <= 0 || !Number.isInteger(userId)) {
+        throw new BadRequestError('Invalid userId: must be a positive integer');
+      }
+
+      // Check for very large numbers
+      if (userId > Number.MAX_SAFE_INTEGER) {
+        throw new BadRequestError('Invalid userId: number is too large');
+      }
+
+      // Get helpful projects
+      const helpfulProjects = await this.userService.getHelpfulProjects(userId);
+
+      // Format response according to user's specification
+      const projects = helpfulProjects.map((item) => {
+        const failureCategories = item.project.categories
+          .map((cat) => cat.category.name)
+          .filter((name): name is string => name !== null);
+
+        return {
+          name: item.project.name ?? '',
+          user: item.project.user.name ?? '',
+          project_id: item.project.projectId,
+          period: item.project.period ?? '',
+          sale_status: item.project.saleStatus ?? '',
+          is_free: item.project.isFree ? 'true' : 'false',
+          price: item.project.price ?? 0,
+          failure_catagory: failureCategories,
+        };
+      });
+
+      res.status(200).json({
+        success: true,
+        message: '완료',
+        data: {
+          data_total: projects.length,
+          projects,
+        },
+        code: 200,
+      });
+    } catch (error) {
+      // If it's already an AppError, pass it through
+      if (error instanceof AppError) {
+        return next(error);
+      }
+      // For unexpected errors, convert to NotFoundError to avoid 500
+      console.error('Unexpected error in getHelpfulProjects:', error);
+      next(new NotFoundError('Failed to get helpful projects'));
     }
   };
 }
