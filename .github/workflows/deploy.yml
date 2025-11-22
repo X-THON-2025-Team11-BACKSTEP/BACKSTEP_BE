@@ -21,7 +21,7 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
             # 프로젝트 경로로 이동 (서버 설정에 맞게 수정 필요)
-            cd /opt/app
+            cd /opt/app/BACKSTEP_BE
             
             # 최신 코드 받기
             git pull origin main
