@@ -90,7 +90,7 @@ export class ProjectController {
         message: '글 작성 완료 및 업로드 완료',
         data: {
           name : createProjectDto.name,
-          name_id: project.projectId,
+          project_id: project.projectId,
           project_image: project.image,
           user: user.name,
           user_id: user.userId,
@@ -141,7 +141,7 @@ export class ProjectController {
         message: '글 디테일 불러오기 완료',
         data: {
           name: project.name,
-          name_id: project.projectId,
+          project_id: project.projectId,
           project_image: project.image,
           user: project.user.name,
           user_id: project.user.userId,
@@ -268,7 +268,7 @@ export class ProjectController {
         message: "글 수정 완료",
         data: {
           name: updatedProject.name,
-          name_id: updatedProject.projectId,
+          project_id: updatedProject.projectId,
           project_image: updatedProject.image,
           user: updatedProject.user.name,
           user_id: updatedProject.user.userId,
@@ -285,6 +285,35 @@ export class ProjectController {
           failure_category: failureCategory,
           failure: failure,
           growth_point: updatedProject.growthPoint,
+        }
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  deleteProject = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const user = req.user as User;
+      if (!user) {
+        throw new BadRequestError('사용자 정보를 찾을 수 없습니다.');
+      }
+
+      const userId = user.userId;
+      const projectId = parseInt(req.params.projectId);
+
+      if (isNaN(projectId)) {
+        throw new BadRequestError('잘못된 프로젝트 ID입니다.');
+      }
+
+      await this.projectService.deleteProject(projectId, userId);
+
+      res.status(200).json({
+        success: true,
+        code: 200,
+        message: '글 삭제 완료',
+        data: {
+          project_id: projectId,
         }
       });
     } catch (error) {

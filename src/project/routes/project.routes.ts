@@ -26,5 +26,12 @@ router.patch(
   projectController.updateProject
 );
 
+// DELETE /projects/:projectId - 프로젝트 삭제
+router.delete(
+  '/:projectId',
+  authenticateJwt,
+  projectController.deleteProject
+);
+
 export default router;
 
