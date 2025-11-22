@@ -16,13 +16,23 @@ import passport from 'passport';
 // Routes
 import authRoutes from './auth/routes/auth.routes';
 import userRoutes from './user/routes/user.routes';
+import projectRoutes from './project/routes/project.routes';
 import { globalErrorHandler } from './common/middleware/errorHandler';
 import { NotFoundError } from './common/error/AppError';
 
 app.use(passport.initialize());
 
+// 디버깅용 미들웨어 (개발 환경에서만)
+if (process.env.NODE_ENV === 'development') {
+  app.use((req, res, next) => {
+    console.log(`${req.method} ${req.originalUrl}`);
+    next();
+  });
+}
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/projects', projectRoutes);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
@@ -37,4 +47,3 @@ app.use((req, res, next) => {
 app.use(globalErrorHandler);
 
 export default app;
-
