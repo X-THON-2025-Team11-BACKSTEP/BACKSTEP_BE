@@ -278,12 +278,34 @@ export class UserRepository {
           throw new BadRequestError('Insufficient funds');
         }
 
-        // Update user money
+        // Find project to get seller ID
+        const project = await tx.project.findUnique({
+          where: { projectId },
+        });
+
+        if (!project) {
+          throw new NotFoundError('Project not found');
+        }
+
+        const sellerId = project.userId;
+
+        // Update user money (Buyer: decrement)
         const updatedUser = await tx.user.update({
           where: { userId },
           data: {
             money: {
               decrement: price,
+            },
+          },
+        });
+
+        // Update seller money (Seller: increment)
+        // If buyer is seller, money remains same (decrement then increment)
+        await tx.user.update({
+          where: { userId: sellerId },
+          data: {
+            money: {
+              increment: price,
             },
           },
         });
