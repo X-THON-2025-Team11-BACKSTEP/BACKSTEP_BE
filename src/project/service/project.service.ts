@@ -1,6 +1,7 @@
+import { UserProjectHelpful } from '@prisma/client';
 import { ProjectRepository } from '../repository/project.repository';
 import { CreateProjectDto, FailureAnswer } from '../dto/create-project.dto';
-import { BadRequestError, NotFoundError } from '../../common/error/AppError';
+import { BadRequestError, NotFoundError, AppError } from '../../common/error/AppError';
 
 export class ProjectService {
   private projectRepository: ProjectRepository;
@@ -52,6 +53,43 @@ export class ProjectService {
     }
 
     return project;
+  }
+
+  async addHelpful(userId: number, projectId: number): Promise<UserProjectHelpful> {
+    try {
+      // Validate userId and projectId
+      if (!Number.isInteger(userId) || userId <= 0) {
+        throw new BadRequestError('Invalid user ID');
+      }
+
+      if (!Number.isInteger(projectId) || projectId <= 0) {
+        throw new BadRequestError('Invalid project ID');
+      }
+
+      // Check if project exists
+      const project = await this.projectRepository.findProjectById(projectId);
+      if (!project) {
+        throw new NotFoundError('Project not found');
+      }
+
+      // Check if already marked as helpful
+      const existingHelpful = await this.projectRepository.findHelpfulByUserAndProject(userId, projectId);
+      if (existingHelpful) {
+        throw new BadRequestError('Already marked as helpful');
+      }
+
+      // Create helpful mark
+      const helpful = await this.projectRepository.createHelpful(userId, projectId);
+      return helpful;
+    } catch (error) {
+      // If it's already an AppError, re-throw it
+      if (error instanceof AppError) {
+        throw error;
+      }
+      // For unexpected errors, convert to BadRequestError to avoid 500
+      console.error('Error adding helpful:', error);
+      throw new BadRequestError('Failed to add helpful mark');
+    }
   }
 }
 
