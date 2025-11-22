@@ -12,5 +12,12 @@ router.post(
   projectController.createProject
 );
 
+// PATCH /projects/:projectId - 프로젝트 수정
+router.patch(
+  '/:projectId',
+  authenticateJwt,
+  projectController.updateProject
+);
+
 export default router;
 
