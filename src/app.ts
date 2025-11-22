@@ -6,6 +6,9 @@ dotenv.config();
 
 const app: Application = express();
 
+// Trust Proxy (Nginx 뒤에서 HTTPS 인식하기 위해 필수)
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:3000', // 프론트엔드 주소 (HTTPS 포함)
