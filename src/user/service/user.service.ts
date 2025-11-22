@@ -29,7 +29,11 @@ export class UserService {
       }
 
       // Update user
-      const updatedUser = await this.userRepository.updateUser(userId, updateData);
+      const updatePayload: { nickname?: string, profileImage?: string } = {};
+      if (updateData.nickname) updatePayload.nickname = updateData.nickname;
+      if (updateData.profile_image) updatePayload.profileImage = updateData.profile_image;
+
+      const updatedUser = await this.userRepository.updateUser(userId, updatePayload);
       return updatedUser;
     } catch (error) {
       // If it's already an AppError, re-throw it

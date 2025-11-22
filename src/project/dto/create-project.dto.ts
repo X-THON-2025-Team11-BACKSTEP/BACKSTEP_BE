@@ -17,5 +17,6 @@ export interface CreateProjectDto {
   failure_category: string[];
   failure: FailureAnswer[];
   growth_point: string;
+  image?: string;
 }
 
