@@ -28,13 +28,18 @@ export class UserController {
         throw new BadRequestError('Invalid request body');
       }
 
-      // Validate nickname is provided
-      if (!updateData.nickname || typeof updateData.nickname !== 'string') {
-        throw new BadRequestError('nickname field is required');
+      // Validate at least one field is provided
+      if (!updateData.nickname && !updateData.profile_image) {
+        throw new BadRequestError('No update data provided');
       }
 
-      // Validate nickname is not empty
-      if (updateData.nickname.trim().length === 0) {
+      // Validate nickname if provided
+      if (updateData.nickname && typeof updateData.nickname !== 'string') {
+        throw new BadRequestError('nickname must be a string');
+      }
+
+      // Validate nickname is not empty if provided
+      if (updateData.nickname && updateData.nickname.trim().length === 0) {
         throw new BadRequestError('nickname cannot be empty');
       }
 
