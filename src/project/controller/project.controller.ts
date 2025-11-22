@@ -101,7 +101,8 @@ export class ProjectController {
           result_url: createProjectDto.result_url,
           failure_category: createProjectDto.failure_category,
           failure: createProjectDto.failure,
-          growth_point: createProjectDto.growth_point
+          growth_point: createProjectDto.growth_point,
+          image: createProjectDto.image,
         }
       });
     } catch (error) {
@@ -148,6 +149,7 @@ export class ProjectController {
           failure_category: failureCategory,
           failure: failure,
           growth_point: project.growthPoint,
+          image: project.image,
         }
       });
     } catch (error) {
@@ -271,6 +273,7 @@ export class ProjectController {
           failure_category: failureCategory,
           failure: failure,
           growth_point: updatedProject.growthPoint,
+          image: updatedProject.image,
         }
       });
     } catch (error) {

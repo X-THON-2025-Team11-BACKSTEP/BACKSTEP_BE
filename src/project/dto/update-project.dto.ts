@@ -14,5 +14,6 @@ export interface UpdateProjectDto {
   failure_category?: string[];
   failure?: FailureAnswer[];
   growth_point?: string;
+  image?: string;
 }
 

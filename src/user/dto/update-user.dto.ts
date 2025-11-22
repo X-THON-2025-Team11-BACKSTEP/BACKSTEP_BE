@@ -1,4 +1,5 @@
 export class UpdateUserDto {
-  nickname!: string;
+  nickname?: string;
+  profile_image?: string;
 }
 

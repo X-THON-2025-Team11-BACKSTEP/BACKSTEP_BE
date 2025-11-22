@@ -24,6 +24,7 @@ export class ProjectService {
       price: createProjectDto.price,
       resultUrl: createProjectDto.result_url,
       growthPoint: createProjectDto.growth_point,
+      image: createProjectDto.image,
     });
 
     // 실패 카테고리 매핑 생성
@@ -90,6 +91,7 @@ export class ProjectService {
       price: updateProjectDto.price,
       resultUrl: updateProjectDto.result_url,
       growthPoint: updateProjectDto.growth_point,
+      image: updateProjectDto.image,
     });
 
     // failure_category와 failure가 있으면 카테고리 매핑 업데이트

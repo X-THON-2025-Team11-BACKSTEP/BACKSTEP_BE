@@ -15,6 +15,7 @@ export class ProjectRepository {
     price: number;
     resultUrl: string;
     growthPoint: string;
+    image?: string;
   }) {
     return await prisma.project.create({
       data: {
@@ -29,6 +30,7 @@ export class ProjectRepository {
         price: data.price,
         resultUrl: data.resultUrl,
         growthPoint: data.growthPoint,
+        image: data.image,
       },
     });
   }
@@ -82,6 +84,7 @@ export class ProjectRepository {
     price?: number;
     resultUrl?: string;
     growthPoint?: string;
+    image?: string;
   }) {
     return await prisma.project.update({
       where: { projectId },
@@ -96,6 +99,7 @@ export class ProjectRepository {
         ...(data.price !== undefined && { price: data.price }),
         ...(data.resultUrl !== undefined && { resultUrl: data.resultUrl }),
         ...(data.growthPoint !== undefined && { growthPoint: data.growthPoint }),
+        ...(data.image !== undefined && { image: data.image }),
       },
       include: {
         user: true,

@@ -8,17 +8,22 @@ export class UserRepository {
     this.prisma = new PrismaClient();
   }
 
-  async updateUser(userId: number, data: { nickname: string }): Promise<User> {
+  async updateUser(userId: number, data: { nickname?: string, profileImage?: string }): Promise<User> {
     try {
-      // Validate input
-      if (!data.nickname || typeof data.nickname !== 'string') {
+      // Validate input (at least one field must be present)
+      if (!data.nickname && !data.profileImage) {
+        throw new BadRequestError('No update data provided');
+      }
+
+      if (data.nickname && typeof data.nickname !== 'string') {
         throw new BadRequestError('Invalid nickname data');
       }
 
       return await this.prisma.user.update({
         where: { userId },
         data: {
-          nickname: data.nickname,
+          ...(data.nickname && { nickname: data.nickname }),
+          ...(data.profileImage && { profileImage: data.profileImage }),
         },
       });
     } catch (error) {
