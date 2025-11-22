@@ -20,5 +20,8 @@ router.post('/projects/:projectId/helpful', authenticateJwt, userController.addH
 // DELETE /projects/:projectId/helpful - Remove helpful (unlike)
 router.delete('/projects/:projectId/helpful', authenticateJwt, userController.removeHelpful);
 
+// POST /projects/:projectId/purchase - Purchase project
+router.post('/projects/:projectId/purchase', authenticateJwt, userController.purchaseProject);
+
 export default router;
 

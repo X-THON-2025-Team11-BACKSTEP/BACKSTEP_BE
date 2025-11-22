@@ -1,4 +1,4 @@
-import { PrismaClient, User, Prisma, UserProjectHelpful } from '@prisma/client';
+import { PrismaClient, User, Prisma, UserProjectHelpful, PurchaseHistory } from '@prisma/client';
 import { NotFoundError, BadRequestError } from '../../common/error/AppError';
 
 export class UserRepository {
@@ -189,6 +189,77 @@ export class UserRepository {
       }
       // For any other errors, treat as not found to avoid 500
       throw new NotFoundError('Helpful not found');
+    }
+  }
+
+  async purchaseProject(userId: number, projectId: number, price: number): Promise<{ purchase: PurchaseHistory; user: User }> {
+    try {
+      if (!Number.isInteger(userId) || userId <= 0) {
+        throw new BadRequestError('Invalid user ID');
+      }
+      if (!Number.isInteger(projectId) || projectId <= 0) {
+        throw new BadRequestError('Invalid project ID');
+      }
+      if (!Number.isInteger(price) || price <= 0) {
+        throw new BadRequestError('Invalid price');
+      }
+
+      // Use transaction to ensure atomicity
+      return await this.prisma.$transaction(async (tx) => {
+        // Get current user with money
+        const user = await tx.user.findUnique({
+          where: { userId },
+        });
+
+        if (!user) {
+          throw new NotFoundError('User not found');
+        }
+
+        // Check if user has enough money
+        const currentMoney = user.money || 0;
+        if (currentMoney < price) {
+          throw new BadRequestError('Insufficient funds');
+        }
+
+        // Update user money
+        const updatedUser = await tx.user.update({
+          where: { userId },
+          data: {
+            money: {
+              decrement: price,
+            },
+          },
+        });
+
+        // Create purchase history
+        const purchase = await tx.purchaseHistory.create({
+          data: {
+            userId,
+            projectId,
+          },
+        });
+
+        return { purchase, user: updatedUser };
+      });
+    } catch (error) {
+      // If it's already an AppError, re-throw it
+      if (error instanceof BadRequestError || error instanceof NotFoundError) {
+        throw error;
+      }
+      // For Prisma errors
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        // P2025: Record not found
+        if (error.code === 'P2025') {
+          throw new NotFoundError('User or project not found');
+        }
+        // P2003: Foreign key constraint failed
+        if (error.code === 'P2003') {
+          throw new NotFoundError('User or project not found');
+        }
+      }
+      // For any other errors, treat as not found to avoid 500
+      console.error('Error purchasing project:', error);
+      throw new NotFoundError('Purchase failed');
     }
   }
 }
