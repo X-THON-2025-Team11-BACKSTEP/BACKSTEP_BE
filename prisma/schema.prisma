@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// 판매 상태 enum
+enum SaleStatus {
+  NOTSALE
+  FREE
+  ONSALE
+}
+
+model Project {
+  projectId      Int             @id @default(autoincrement()) @map("project_id")
+  userId         Int             @map("user_id")
+  name           String?         @db.VarChar(255)
+  period         String?         @db.VarChar(255)
+  personnel      Int?
+  intent         String?
+  myRole         String?         @map("my_role")
+  failure        String?
+  failureReason  String?         @map("failure_reason")
+  growthPoint    String?         @map("growth_point")
+  saleStatus     SaleStatus?     @map("sale_status")
+  createdAt      DateTime        @default(now())               @map("created_at")
+  updatedAt      DateTime        @updatedAt                    @map("updated_at")
+  isFree         Boolean?        @map("is_free")
+  price          Int?            @map("price")
+  resultUrl      String?         @map("result_url")
+
+  // Relations
+  user           User               @relation(fields: [userId], references: [userId])
+  helpfulMarks   UserProjectHelpful[]
+  categories     ProjectCategoryMap[]
+  downloads      DownloadHistory[]
+
+  @@map("프로젝트")
+}
+
+model User {
+  userId    Int      @id @default(autoincrement()) @map("user_id")
+  name      String?  @db.VarChar(255)
+  email     String?  @unique @db.VarChar(255)
+  nickname  String?  @db.VarChar(255)
+  money     Int?     @map("money")
+  googleId  String?  @unique @map("google_id")
+  createdAt DateTime @default(now())               @map("created_at")
+  updatedAt DateTime @updatedAt                    @map("updated_at")
+
+  projects        Project[]
+  helpfulProjects UserProjectHelpful[]
+  downloads       DownloadHistory[]
+
+  @@map("유저")
+}
+
+model UserProjectHelpful {
+  userProjectHelpfulId Int  @id @default(autoincrement()) @map("userprojecthelpful_id")
+  userId               Int  @map("user_id")
+  projectId            Int  @map("project_id")
+
+  user    User    @relation(fields: [userId], references: [userId])
+  project Project @relation(fields: [projectId], references: [projectId])
+
+  // 같은 유저-프로젝트 쌍 중복 방지
+  @@unique([userId, projectId])
+
+  @@map("유저-프로젝트 도움돼요 표시 매핑")
+}
+
+model FailureCategory {
+  categoryId Int     @id @default(autoincrement()) @map("category_id")
+  name       String? @db.VarChar(100)
+  question1  String  @db.VarChar(255)
+  question2  String  @db.VarChar(255)
+  question3  String  @db.VarChar(255)
+
+  projects ProjectCategoryMap[]
+
+  @@map("실패 카테고리")
+}
+
+model ProjectCategoryMap {
+  projectCategoryId Int @id @default(autoincrement()) @map("projectcategory_id")
+  categoryId        Int @map("category_id2")
+  projectId         Int @map("project_id")
+  answer1           String
+  answer2           String
+  answer3           String
+
+  category FailureCategory @relation(fields: [categoryId], references: [categoryId])
+  project  Project         @relation(fields: [projectId], references: [projectId])
+
+  // 같은 프로젝트-카테고리 매핑 중복 방지
+  @@unique([projectId, categoryId])
+
+  @@map("프로젝트카테고리 매핑")
+}
+
+model DownloadHistory {
+  downloadId Int      @id @default(autoincrement()) @map("download_id")
+  userId     Int      @map("user_id")
+  projectId  Int      @map("project_id")
+  isFree     Boolean? @map("is_free")
+  price      Int?     @map("price")
+  createdAt  DateTime @default(now())               @map("created_at")
+
+  user    User    @relation(fields: [userId], references: [userId])
+  project Project @relation(fields: [projectId], references: [projectId])
+
+  @@map("다운로드 이력")
+}
