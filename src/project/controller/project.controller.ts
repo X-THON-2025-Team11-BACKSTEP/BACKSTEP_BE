@@ -83,10 +83,7 @@ export class ProjectController {
 
       await this.projectService.createProject(userId, createProjectDto);
 
-      res.status(200).json({
-        message: '업로드 완료',
-        statusCode: 200,
-      });
+      res.json(SuccessResponse.created(null, '업로드 완료'));
     } catch (error) {
       next(error);
     }
@@ -112,8 +109,7 @@ export class ProjectController {
         [cat.category.name!]: [cat.answer1, cat.answer2, cat.answer3]
       }));
 
-      res.status(200).json({
-        message: '완료',
+      const responseData = {
         name: project.name,
         user: project.user.name || project.user.nickname,
         period: project.period,
@@ -128,7 +124,9 @@ export class ProjectController {
         failure: failure,
         growth_point: project.growthPoint,
         statusCode: 200,
-      });
+      };
+
+      res.json(SuccessResponse.ok(responseData, '완료'));
     } catch (error) {
       next(error);
     }
@@ -223,8 +221,7 @@ export class ProjectController {
         [cat.category.name!]: [cat.answer1, cat.answer2, cat.answer3]
       }));
 
-      res.status(200).json({
-        message: '완료',
+      const responseData = {
         name: updatedProject.name,
         user: updatedProject.user.name || updatedProject.user.nickname,
         period: updatedProject.period,
@@ -239,7 +236,9 @@ export class ProjectController {
         failure: failure,
         growth_point: updatedProject.growthPoint,
         statusCode: 200,
-      });
+      };
+
+      res.json(SuccessResponse.ok(responseData, '완료'));
     } catch (error) {
       next(error);
     }
