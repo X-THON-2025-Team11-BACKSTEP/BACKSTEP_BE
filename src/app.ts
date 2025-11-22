@@ -11,7 +11,11 @@ app.set('trust proxy', 1);
 
 // Middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3001', // 프론트엔드 주소 (HTTPS 포함)
+  origin: [
+    process.env.CLIENT_URL || 'http://localhost:3001',
+    'http://localhost:3001',
+    'http://localhost:5173' // Vite 기본 포트도 예비로 추가
+  ],
   credentials: true, // 쿠키/인증 헤더 허용
 }));
 app.use(express.json());
