@@ -5,8 +5,14 @@ import { authenticateJwt } from '../../auth/middleware/auth.middleware';
 const router = Router();
 const userController = new UserController();
 
+// GET /users/me - Get current authenticated user info (to check user_id)
+router.get('/me', authenticateJwt, userController.getCurrentUser);
+
 // PATCH /users - Update user information
 router.patch('/', authenticateJwt, userController.updateUser);
+
+// GET /users/:userId - Get user profile
+router.get('/:userId', authenticateJwt, userController.getUserProfile);
 
 export default router;
 
