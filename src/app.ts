@@ -17,6 +17,9 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Static files
+app.use('/uploads', express.static('uploads'));
+
 // Passport Config
 import './auth/utils/passport.config';
 import passport from 'passport';
@@ -27,6 +30,7 @@ import userRoutes from './user/routes/user.routes';
 import projectRoutes from './project/routes/project.routes';
 import searchRoutes from './search/routes/search.routes';
 
+import imageRoutes from './image/routes/image.routes';
 import { globalErrorHandler } from './common/middleware/errorHandler';
 import { NotFoundError } from './common/error/AppError';
 
@@ -42,6 +46,7 @@ if (process.env.NODE_ENV === 'development') {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/images', imageRoutes);
 // helpful routes must be registered before /api/projects to avoid route conflicts
 app.use('/api/projects', projectRoutes);
 
