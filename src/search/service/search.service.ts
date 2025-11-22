@@ -25,7 +25,7 @@ export class SearchService {
           user: project.user.name,
           user_id: project.user.userId,
           nickname: project.user.nickname,
-          user_image: project.user.profileImage,
+          profile_image: project.user.profileImage,
           period: project.period,
           sale_status: project.saleStatus,
           is_free: project.isFree ? "true" : "false",
@@ -44,7 +44,7 @@ export class SearchService {
           user: user.name,
           user_id: user.userId,
           nickname: user.nickname,
-          user_image: user.profileImage,
+          profile_image: user.profileImage,
         })),
       };
     }
