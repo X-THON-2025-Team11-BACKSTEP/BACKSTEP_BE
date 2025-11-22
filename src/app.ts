@@ -15,12 +15,14 @@ import passport from 'passport';
 
 // Routes
 import authRoutes from './auth/routes/auth.routes';
+import userRoutes from './user/routes/user.routes';
 import { globalErrorHandler } from './common/middleware/errorHandler';
 import { NotFoundError } from './common/error/AppError';
 
 app.use(passport.initialize());
 
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
