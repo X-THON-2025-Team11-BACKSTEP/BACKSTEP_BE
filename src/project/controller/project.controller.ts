@@ -92,6 +92,48 @@ export class ProjectController {
     }
   };
 
+  getProject = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const projectId = parseInt(req.params.projectId);
+
+      if (isNaN(projectId)) {
+        throw new BadRequestError('잘못된 프로젝트 ID입니다.');
+      }
+
+      const project = await this.projectService.getProject(projectId);
+
+      if (!project) {
+        throw new BadRequestError('프로젝트를 찾을 수 없습니다.');
+      }
+
+      // 응답 형식 변환
+      const failureCategory = project.categories.map(cat => cat.category.name).filter(Boolean);
+      const failure = project.categories.map(cat => ({
+        [cat.category.name!]: [cat.answer1, cat.answer2, cat.answer3]
+      }));
+
+      res.status(200).json({
+        message: '완료',
+        name: project.name,
+        user: project.user.name || project.user.nickname,
+        period: project.period,
+        personnel: project.personnel,
+        intent: project.intent,
+        my_role: project.myRole,
+        sale_status: project.saleStatus,
+        is_free: project.isFree ? "true" : "false",
+        price: project.price,
+        result_url: project.resultUrl,
+        failure_category: failureCategory,
+        failure: failure,
+        growth_point: project.growthPoint,
+        statusCode: 200,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   updateProject = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const user = req.user as User;
