@@ -6,6 +6,7 @@ interface ErrorResponse {
   success: boolean;
   code: number;
   message: string;
+  data: object;
 }
 
 export const globalErrorHandler = (
@@ -35,6 +36,7 @@ export const globalErrorHandler = (
     success: false,
     code: statusCode,
     message,
+    data: {}, // 항상 빈 객체 포함
   };
 
   res.status(statusCode).json(response);

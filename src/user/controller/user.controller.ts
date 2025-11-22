@@ -3,6 +3,7 @@ import { UserService } from '../service/user.service';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { User } from '@prisma/client';
 import { BadRequestError, UnauthorizedError, AppError, NotFoundError } from '../../common/error/AppError';
+import { SuccessResponse } from '../../common/utils/successResponse';
 
 export class UserController {
   private userService: UserService;
@@ -39,20 +40,19 @@ export class UserController {
       const updatedUser = await this.userService.updateUser(user.userId, updateData);
 
       // Format response according to user's specification
-      res.status(200).json({
-        message: '회원 정보 수정 완료',
-        data: {
-          user: {
-            user_id: updatedUser.userId,
-            name: updatedUser.name,
-            nickname: updatedUser.nickname,
-            email: updatedUser.email,
-            money: updatedUser.money,
-            created_at: updatedUser.createdAt,
-            updated_at: updatedUser.updatedAt,
-          },
+      const responseData = {
+        user: {
+          user_id: updatedUser.userId,
+          name: updatedUser.name,
+          nickname: updatedUser.nickname,
+          email: updatedUser.email,
+          money: updatedUser.money,
+          created_at: updatedUser.createdAt,
+          updated_at: updatedUser.updatedAt,
         },
-      });
+      };
+
+      res.json(SuccessResponse.ok(responseData, '회원 정보 수정 완료'));
     } catch (error) {
       // If it's already an AppError, pass it through
       if (error instanceof AppError) {
@@ -93,19 +93,18 @@ export class UserController {
       const user = await this.userService.getUserProfile(userId);
 
       // Format response according to user's specification
-      res.status(200).json({
-        message: '회원 정보 조회 완료',
-        data: {
-          user: {
-            user_id: user.userId,
-            name: user.name,
-            nickname: user.nickname,
-            email: user.email,
-            created_at: user.createdAt,
-            updated_at: user.updatedAt,
-          },
+      const responseData = {
+        user: {
+          user_id: user.userId,
+          name: user.name,
+          nickname: user.nickname,
+          email: user.email,
+          created_at: user.createdAt,
+          updated_at: user.updatedAt,
         },
-      });
+      };
+
+      res.json(SuccessResponse.ok(responseData, '회원 정보 조회 완료'));
     } catch (error) {
       // If it's already an AppError, pass it through
       if (error instanceof AppError) {
@@ -132,20 +131,19 @@ export class UserController {
       }
 
       // Return current user info including user_id
-      res.status(200).json({
-        message: '현재 유저 정보',
-        data: {
-          user: {
-            user_id: user.userId,
-            name: user.name,
-            nickname: user.nickname,
-            email: user.email,
-            money: user.money,
-            created_at: user.createdAt,
-            updated_at: user.updatedAt,
-          },
+      const responseData = {
+        user: {
+          user_id: user.userId,
+          name: user.name,
+          nickname: user.nickname,
+          email: user.email,
+          money: user.money,
+          created_at: user.createdAt,
+          updated_at: user.updatedAt,
         },
-      });
+      };
+
+      res.json(SuccessResponse.ok(responseData, '현재 유저 정보'));
     } catch (error) {
       // If it's already an AppError, pass it through
       if (error instanceof AppError) {
@@ -186,16 +184,15 @@ export class UserController {
       const helpful = await this.userService.addHelpful(user.userId, projectId);
 
       // Format response according to user's specification
-      res.status(200).json({
-        message: '좋아요 추가 완료',
-        data: {
-          user: {
-            user_id: helpful.userId,
-            project_id: helpful.projectId,
-            userprojecthelpful_id: helpful.userProjectHelpfulId,
-          },
+      const responseData = {
+        user: {
+          user_id: helpful.userId,
+          project_id: helpful.projectId,
+          userprojecthelpful_id: helpful.userProjectHelpfulId,
         },
-      });
+      };
+
+      res.json(SuccessResponse.ok(responseData, '좋아요 추가 완료'));
     } catch (error) {
       // If it's already an AppError, pass it through
       if (error instanceof AppError) {
@@ -236,12 +233,7 @@ export class UserController {
       await this.userService.removeHelpful(user.userId, projectId);
 
       // Format response according to user's specification
-      res.status(200).json({
-        message: '삭제되었습니다',
-        data: {
-          user: {},
-        },
-      });
+      res.json(SuccessResponse.ok({ user: {} }, '삭제되었습니다'));
     } catch (error) {
       // If it's already an AppError, pass it through
       if (error instanceof AppError) {
