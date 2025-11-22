@@ -201,6 +201,7 @@ export class UserService {
       saleStatus: string | null;
       isFree: boolean | null;
       price: number | null;
+      helpfulCount: number;
       image: string | null;
       user: {
         name: string | null;
@@ -245,6 +246,7 @@ export class UserService {
     saleStatus: string | null;
     isFree: boolean | null;
     price: number | null;
+    helpfulCount: number;
     image: string | null;
     user: {
       name: string | null;

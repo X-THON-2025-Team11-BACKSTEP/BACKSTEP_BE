@@ -377,6 +377,7 @@ export class UserController {
           sale_status: item.project.saleStatus ?? '',
           is_free: item.project.isFree ? 'true' : 'false',
           price: item.project.price ?? 0,
+          helpful_count: item.project.helpfulCount ?? 0,
           failure_catagory: failureCategories,
         };
       });
@@ -445,6 +446,7 @@ export class UserController {
           sale_status: project.saleStatus ?? '',
           is_free: project.isFree ? 'true' : 'false',
           price: project.price ?? 0,
+          helpful_count: project.helpfulCount ?? 0,
           failure_catagory: failureCategories,
         };
       });

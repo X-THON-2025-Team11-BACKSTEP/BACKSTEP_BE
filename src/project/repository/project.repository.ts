@@ -59,8 +59,8 @@ export class ProjectRepository {
     });
   }
 
-  async findById(projectId: number) {
-    return await prisma.project.findUnique({
+  async findById(projectId: number, currentUserId?: number) {
+    const project = await prisma.project.findUnique({
       where: { projectId },
       include: {
         user: true,
@@ -71,6 +71,26 @@ export class ProjectRepository {
         },
       },
     });
+
+    if (!project) return null;
+
+    let isHelpful = false;
+    if (currentUserId) {
+      const helpful = await prisma.userProjectHelpful.findUnique({
+        where: {
+          userId_projectId: {
+            userId: currentUserId,
+            projectId,
+          },
+        },
+      });
+      isHelpful = !!helpful;
+    }
+
+    return {
+      ...project,
+      isHelpful,
+    };
   }
 
   async updateProject(projectId: number, data: {
@@ -135,6 +155,23 @@ export class ProjectRepository {
     // 프로젝트 삭제
     return await prisma.project.delete({
       where: { projectId },
+    });
+  }
+
+  async findPopularProjects(limit: number = 7) {
+    return await prisma.project.findMany({
+      take: limit,
+      orderBy: {
+        helpfulCount: 'desc',
+      },
+      include: {
+        user: true,
+        categories: {
+          include: {
+            category: true,
+          },
+        },
+      },
     });
   }
 }

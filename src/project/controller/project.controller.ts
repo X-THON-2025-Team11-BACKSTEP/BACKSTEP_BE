@@ -3,8 +3,9 @@ import { ProjectService } from '../service/project.service';
 import { CreateProjectDto } from '../dto/create-project.dto';
 import { UpdateProjectDto } from '../dto/update-project.dto';
 import { SuccessResponse } from '../../common/utils/successResponse';
-import { BadRequestError } from '../../common/error/AppError';
+import { BadRequestError, UnauthorizedError } from '../../common/error/AppError';
 import { User } from '@prisma/client';
+import jwt from 'jsonwebtoken';
 
 export class ProjectController {
   private projectService: ProjectService;
@@ -123,7 +124,26 @@ export class ProjectController {
         throw new BadRequestError('잘못된 프로젝트 ID입니다.');
       }
 
-      const project = await this.projectService.getProject(projectId);
+      // 토큰에서 userId 추출 (로그인한 경우에만)
+      let currentUserId: number | undefined;
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.split(' ')[1];
+        try {
+          const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: number };
+          currentUserId = decoded.id;
+        } catch (error) {
+          // 토큰이 유효하지 않아도 프로젝트 조회는 가능해야 함
+          console.log('Invalid token provided for getProject');
+          // 비로그인시 UnauthorizedError 발생
+          throw new UnauthorizedError('로그인이 필요합니다.');
+        }
+      } else {
+        // 비로그인시 UnauthorizedError 발생
+        throw new UnauthorizedError('로그인이 필요합니다.');
+      }
+
+      const project = await this.projectService.getProject(projectId, currentUserId);
 
       if (!project) {
         throw new BadRequestError('프로젝트를 찾을 수 없습니다.');
@@ -154,6 +174,8 @@ export class ProjectController {
           sale_status: project.saleStatus,
           is_free: project.isFree ? "true" : "false",
           price: project.price,
+          helpful_count: project.helpfulCount,
+          is_helpful: (project as any).isHelpful || false, // 좋아요 여부 추가
           result_url: project.resultUrl,
           failure_category: failureCategory,
           failure: failure,
@@ -315,6 +337,48 @@ export class ProjectController {
         data: {
           project_id: projectId,
         }
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getPopularProjects = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const projects = await this.projectService.getPopularProjects();
+
+      // 응답 형식 변환
+      const formattedProjects = projects.map(project => {
+        const failureCategory = project.categories.map(cat => cat.category.name).filter(Boolean);
+        return {
+          name: project.name,
+          project_id: project.projectId,
+          project_image: project.image,
+          user: project.user.name,
+          user_id: project.user.userId,
+          nickname: project.user.nickname,
+          profile_image: project.user.profileImage,
+          period: project.period,
+          personnel: project.personnel,
+          intent: project.intent,
+          my_role: project.myRole,
+          sale_status: project.saleStatus,
+          is_free: project.isFree ? "true" : "false",
+          price: project.price,
+          helpful_count: project.helpfulCount,
+          result_url: project.resultUrl,
+          failure_category: failureCategory,
+          growth_point: project.growthPoint,
+        };
+      });
+
+      res.status(200).json({
+        success: true,
+        code: 200,
+        message: '인기 게시글 조회 완료',
+        data: {
+          projects: formattedProjects,
+        },
       });
     } catch (error) {
       next(error);

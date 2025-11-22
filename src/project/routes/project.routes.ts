@@ -12,6 +12,12 @@ router.post(
   projectController.createProject
 );
 
+// GET /projects/popular - 인기 프로젝트 조회 (반드시 /:projectId 보다 앞에 위치해야 함)
+router.get(
+  '/popular',
+  projectController.getPopularProjects
+);
+
 // GET /projects/:projectId - 프로젝트 조회
 router.get(
   '/:projectId',

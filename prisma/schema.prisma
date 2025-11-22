@@ -30,6 +30,7 @@ model Project {
   price          Int?            @map("price")
   resultUrl      String?         @map("result_url")
   image          String?         @map("image") // 1:1 프로젝트 이미지
+  helpfulCount   Int             @default(0) @map("helpful_count")
 
   // Relations
   user           User               @relation(fields: [userId], references: [userId])
