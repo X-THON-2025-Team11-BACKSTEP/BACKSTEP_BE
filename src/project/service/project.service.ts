@@ -56,8 +56,8 @@ export class ProjectService {
     return project;
   }
 
-  async getProject(projectId: number) {
-    const project = await this.projectRepository.findById(projectId);
+  async getProject(projectId: number, currentUserId?: number) {
+    const project = await this.projectRepository.findById(projectId, currentUserId);
     
     if (!project) {
       throw new NotFoundError('프로젝트를 찾을 수 없습니다.');
@@ -147,6 +147,10 @@ export class ProjectService {
 
     // 프로젝트 삭제
     await this.projectRepository.deleteProject(projectId);
+  }
+
+  async getPopularProjects(limit: number = 7) {
+    return await this.projectRepository.findPopularProjects(limit);
   }
 }
 

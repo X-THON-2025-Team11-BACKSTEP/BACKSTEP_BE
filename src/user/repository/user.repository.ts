@@ -142,11 +142,26 @@ export class UserRepository {
         throw new BadRequestError('Invalid user ID or project ID');
       }
 
-      return await this.prisma.userProjectHelpful.create({
-        data: {
-          userId,
-          projectId,
-        },
+      return await this.prisma.$transaction(async (tx) => {
+        // Create helpful record
+        const helpful = await tx.userProjectHelpful.create({
+          data: {
+            userId,
+            projectId,
+          },
+        });
+
+        // Increment project helpful count
+        await tx.project.update({
+          where: { projectId },
+          data: {
+            helpfulCount: {
+              increment: 1,
+            },
+          },
+        });
+
+        return helpful;
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -174,13 +189,26 @@ export class UserRepository {
         throw new BadRequestError('Invalid user ID or project ID');
       }
 
-      await this.prisma.userProjectHelpful.delete({
-        where: {
-          userId_projectId: {
-            userId,
-            projectId,
+      await this.prisma.$transaction(async (tx) => {
+        // Delete helpful record
+        await tx.userProjectHelpful.delete({
+          where: {
+            userId_projectId: {
+              userId,
+              projectId,
+            },
           },
-        },
+        });
+
+        // Decrement project helpful count
+        await tx.project.update({
+          where: { projectId },
+          data: {
+            helpfulCount: {
+              decrement: 1,
+            },
+          },
+        });
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -301,6 +329,7 @@ export class UserRepository {
       saleStatus: string | null;
       isFree: boolean | null;
       price: number | null;
+      helpfulCount: number;
       image: string | null;
       user: {
         name: string | null;
@@ -331,6 +360,7 @@ export class UserRepository {
               saleStatus: true,
               isFree: true,
               price: true,
+              helpfulCount: true,
               user: {
                 select: {
                   name: true,
@@ -371,6 +401,7 @@ export class UserRepository {
     saleStatus: string | null;
     isFree: boolean | null;
     price: number | null;
+    helpfulCount: number;
     image: string | null;
     user: {
       name: string | null;
@@ -398,6 +429,7 @@ export class UserRepository {
           isFree: true,
           price: true,
           image: true,
+          helpfulCount: true,
           user: {
             select: {
               name: true,
