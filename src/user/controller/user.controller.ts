@@ -153,5 +153,98 @@ export class UserController {
       next(new BadRequestError('Invalid user data'));
     }
   };
+
+  addHelpful = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // Validate user is authenticated
+      if (!req.user) {
+        throw new UnauthorizedError('User authentication required');
+      }
+
+      const user = req.user as User;
+      const projectIdParam = req.params.projectId;
+
+      // Validate projectId parameter exists
+      if (!projectIdParam || projectIdParam.trim() === '') {
+        throw new BadRequestError('projectId parameter is required');
+      }
+
+      // Validate projectId is a number
+      const projectId = parseInt(projectIdParam, 10);
+      if (isNaN(projectId) || projectId <= 0 || !Number.isInteger(projectId)) {
+        throw new BadRequestError('Invalid projectId: must be a positive integer');
+      }
+
+      // Check for very large numbers
+      if (projectId > Number.MAX_SAFE_INTEGER) {
+        throw new BadRequestError('Invalid projectId: number is too large');
+      }
+
+      const helpful = await this.userService.addHelpful(user.userId, projectId);
+
+      // Format response according to user's specification
+      res.status(200).json({
+        message: '좋아요 추가 완료',
+        user: {
+          user_id: helpful.userId,
+          project_id: helpful.projectId,
+          userprojecthelpful_id: helpful.userProjectHelpfulId,
+        },
+        statusCode: 200,
+      });
+    } catch (error) {
+      // If it's already an AppError, pass it through
+      if (error instanceof AppError) {
+        return next(error);
+      }
+      // For unexpected errors, convert to NotFoundError to avoid 500
+      console.error('Unexpected error in addHelpful:', error);
+      next(new NotFoundError('User or project not found'));
+    }
+  };
+
+  removeHelpful = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // Validate user is authenticated
+      if (!req.user) {
+        throw new UnauthorizedError('User authentication required');
+      }
+
+      const user = req.user as User;
+      const projectIdParam = req.params.projectId;
+
+      // Validate projectId parameter exists
+      if (!projectIdParam || projectIdParam.trim() === '') {
+        throw new BadRequestError('projectId parameter is required');
+      }
+
+      // Validate projectId is a number
+      const projectId = parseInt(projectIdParam, 10);
+      if (isNaN(projectId) || projectId <= 0 || !Number.isInteger(projectId)) {
+        throw new BadRequestError('Invalid projectId: must be a positive integer');
+      }
+
+      // Check for very large numbers
+      if (projectId > Number.MAX_SAFE_INTEGER) {
+        throw new BadRequestError('Invalid projectId: number is too large');
+      }
+
+      await this.userService.removeHelpful(user.userId, projectId);
+
+      // Format response according to user's specification
+      res.status(200).json({
+        message: '삭제되었습니다',
+        statusCode: 200,
+      });
+    } catch (error) {
+      // If it's already an AppError, pass it through
+      if (error instanceof AppError) {
+        return next(error);
+      }
+      // For unexpected errors, convert to NotFoundError to avoid 500
+      console.error('Unexpected error in removeHelpful:', error);
+      next(new NotFoundError('Helpful not found'));
+    }
+  };
 }
 

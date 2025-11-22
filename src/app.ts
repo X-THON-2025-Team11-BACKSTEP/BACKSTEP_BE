@@ -37,6 +37,8 @@ if (process.env.NODE_ENV === 'development') {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+// helpful routes must be registered before /api/projects to avoid route conflicts
+app.use('/api', userRoutes); // For /api/projects/:projectId/helpful routes
 app.use('/api/projects', projectRoutes);
 app.get('/', (req, res) => {
   res.send('Hello World!');

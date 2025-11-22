@@ -14,5 +14,11 @@ router.patch('/', authenticateJwt, userController.updateUser);
 // GET /users/:userId - Get user profile
 router.get('/:userId', authenticateJwt, userController.getUserProfile);
 
+// POST /projects/:projectId/helpful - Add helpful (like)
+router.post('/projects/:projectId/helpful', authenticateJwt, userController.addHelpful);
+
+// DELETE /projects/:projectId/helpful - Remove helpful (unlike)
+router.delete('/projects/:projectId/helpful', authenticateJwt, userController.removeHelpful);
+
 export default router;
 
