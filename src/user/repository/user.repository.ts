@@ -290,5 +290,75 @@ export class UserRepository {
       throw new NotFoundError('Purchase failed');
     }
   }
+
+  async findHelpfulProjectsByUserId(userId: number): Promise<Array<{
+    userProjectHelpfulId: number;
+    project: {
+      projectId: number;
+      name: string | null;
+      period: string | null;
+      saleStatus: string | null;
+      isFree: boolean | null;
+      price: number | null;
+      user: {
+        name: string | null;
+      };
+      categories: Array<{
+        category: {
+          name: string | null;
+        };
+      }>;
+    };
+  }>> {
+    try {
+      if (!Number.isInteger(userId) || userId <= 0) {
+        return [];
+      }
+
+      const helpfulProjects = await this.prisma.userProjectHelpful.findMany({
+        where: {
+          userId,
+        },
+        select: {
+          userProjectHelpfulId: true,
+          project: {
+            select: {
+              projectId: true,
+              name: true,
+              period: true,
+              saleStatus: true,
+              isFree: true,
+              price: true,
+              user: {
+                select: {
+                  name: true,
+                },
+              },
+              categories: {
+                select: {
+                  category: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        orderBy: {
+          userProjectHelpfulId: 'desc',
+        },
+      });
+
+      return helpfulProjects;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        return [];
+      }
+      console.error('Error finding helpful projects by user id:', error);
+      return [];
+    }
+  }
 }
 
