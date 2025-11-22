@@ -48,6 +48,7 @@ model User {
   money     Int?     @map("money")
   googleId  String?  @unique @map("google_id")
   profileImage String? @map("profile_image") // 1:1 프로필 이미지
+  bio       String?  @db.Text // 자기소개 (Optional)
   createdAt DateTime @default(now())               @map("created_at")
   updatedAt DateTime @updatedAt                    @map("updated_at")
 
