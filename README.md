@@ -14,6 +14,11 @@ BackStep 프로젝트의 백엔드 서버 리포지토리입니다. Node.js, Exp
 - **API Documentation**: Swagger (OpenAPI 3.0)
 - **Deployment**: AWS EC2, Nginx, PM2, GitHub Actions
 
+## 🖥️ 인프라 구성도 및 ERD
+
+<img width="908" height="225" alt="cistus_core_architecture" src="https://github.com/user-attachments/assets/b4f4438e-7d59-4dc3-88f7-97767acfc3f7" />
+<img width="1047" height="631" alt="스크린샷 2025-11-23 오전 10 40 37" src="https://github.com/user-attachments/assets/6d8c924f-2bb8-4db4-aff8-67c1ffca0e53" />
+
 ## 🚀 주요 기능 (Key Features)
 
 - **사용자 인증 (Auth)**:
